@@ -132,7 +132,7 @@ export default function Home() {
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerpolicy="strict-origin-when-cross-origin"
-                  allowFullscreen
+                  allowFullScreen
                 ></iframe>
               </div>
               <h1 className="mt-5 text-3xl font-medium">
