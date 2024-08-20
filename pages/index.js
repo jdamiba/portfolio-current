@@ -129,14 +129,14 @@ export default function Home() {
                   height="100%"
                   src="https://www.youtube.com/embed/yGZ_L1uLa5g?si=BhXS--t68I4G6XUD"
                   title="YouTube video player"
-                  frameborder="0"
+                  frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerpolicy="strict-origin-when-cross-origin"
-                  allowfullscreen
+                  allowFullscreen
                 ></iframe>
               </div>
               <h1 className="mt-5 text-3xl font-medium">
-                What It's Like To Find Out About LangChain
+                What It`&apos;s Like To Find Out About LangChain
               </h1>
               <h2 className="text-xl opacity-50">Description</h2>
             </div>

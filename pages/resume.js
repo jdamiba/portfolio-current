@@ -154,13 +154,13 @@ const Resume = () => {
                 <div className="mt-2">
                   <h2 className="text-lg">Cornell University</h2>
                   <p className="text-sm mt-2 opacity-50">
-                    Master's, Industrial and Labor Relations
+                    Master`&apos;s, Industrial and Labor Relations
                   </p>
                 </div>
                 <div className="mt-2">
                   <h2 className="text-lg">Rochester Institute of Technology</h2>
                   <p className="text-sm mt-2 opacity-50">
-                    Bachelor's of Science, Applied Arts and Sciences
+                    Bachelor`&apos;s of Science, Applied Arts and Sciences
                   </p>
                 </div>
               </div>
