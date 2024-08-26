@@ -1,93 +1,27 @@
 ---
-date: '2022-07-08T11:50:54.000Z'
-title: Second Blog
-tagline: This is a Tagline If you want to add.
+date: "2024-07-08T11:50:54.000Z"
+title: The Rise of LLM-Powered Web Development
+tagline:
 preview: >-
-  Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-  Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-  when an unknown printer took a galley of type and scrambled it to make a type
-  specimen book.
+  The biggest tech companies in the world like OpenAI, Meta, and Alphabet are each developing LLMs with capabilities that are truly game-changing. In this blog post, we will explore how the rise of LLMs is changing the web development industry and job market.
 image: >-
   https://images.unsplash.com/photo-1656427868828-79a829b92b2b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1332&q=80
 ---
 
-# Heading One
+# The Rise of LLM-Powered Web Development
 
-**Lorem Ipsum** is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+Have you ever wondered what it would be like to be there at the invention of society-changing technologies like electricity or the internal combustion engine? It’s easy to think that the biggest breakthroughs happened in the past, but in reality, new ideas and technologies are being developed right now. One of the technologies with the most potential to change our society is Large Language Models (LLMs)- computer programs which can generate text, images, and video that is hard to distinguish from what a human could produce. The biggest tech companies in the world like OpenAI, Meta, and Alphabet are each developing LLMs with capabilities that are truly game-changing. In this blog post, we will explore how the rise of LLMs is changing the web development industry and job market.
 
-## This is Heading Two
+Before we dive into the post’s main topic, let’s take a moment to understand the basics of how Large Language Models work. LLMs are artificial neural networks whose basic unit is the artificial neuron. Like the biological neurons on which they are based, artificial neurons are able to take in inputs, process them according to some mathematical function, and then generate an output. These neurons are organized into layers, with each layer consisting of multiple neurons. At the beginning of the training process, the parameters of the network are set to initial random values. Then, data is fed into the input layer of the network, and each neuron processes the input data using its activation function. This is known as forward propagation. The activation function determines whether or not the neuron will pass on an output to the other neurons to which it is connected. Eventually, a signal reaches the output layer, and a prediction or classification is made.
 
-Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+Once a prediction is made during the training process, a loss function which measures how close the prediction was to the target is used, and the loss function generates an error signal quantifying the discrepancy between the predicted and actual values. Then, the error signal is propagated back through the neural network, updating the parameters of the model in the direction that reduces the error signal. This is known as backward propagation. Over time, by iterating over the process of forward propagation, loss calculation, and backward propagation, the parameters of the model are adjusted to minimize the loss function.
 
-### This is Heading Three with `inline code`
+As their name implies, Large Language Models are trained on datasets which contain human language content taken from pre-existing books, articles, and websites. The specific task that they were trained to perform is next-word prediction, which is where the model is asked to predict what the next word in a sentence will be or to fill in missing words from a sentence. This results in a model with generative capabilities- given human language input it has never been trained on, the model is able to create responses that are very similar to what a human would produce. The rise of powerful LLMs has led to the development of a new generation of AI assistants such as OpenAI’s ChatGPT or Anthropic’s Claude. These assistants can take in natural language input about a variety of topics and produce output that is remarkably human. They also expose application programming interfaces (APIs) so that developers can interact with them programmatically and develop custom user interfaces powered by the AI assistant.
 
-Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+Now that we better understand how LLMs work, let’s look at how they are changing the field of web development. Let’s take a simple dashboard web application as an example. Historically, such an application would consist of a front-end client displaying various metrics and visualizations of key data. A front-end web developer would work with a graphic designer to create the user interface components using HTML/CSS or maybe a framework like React, and a back-end engineer would write SQL queries in order to get the relevant metrics out of a database in response to requests from the front-end client. Today, both roles can be accomplished by AI assistants powered by LLMs. Given a graphic design, an AI assistant like OpenAI’s ChatGPT can break it down into UI components using HTML or React, and given a natural language query, the assistant can also develop SQL queries in order to get the relevant data out of a database.
 
-#### This is Heading Four With Code Block
+The fact that LLMs can perform these tasks has meant that over the last several years, the skills that are in-demand in the web development job market have changed. Of course, there are still many companies that employ engineers whose main expertise is creating UI components and writing SQL queries. However, the demand for engineers who create LLM-backed applications has soared, as these employees can deliver incredible amounts of value due to their ability to programmatically interact with LLMs like ChatGPT or Anthropic’s Claude.
 
-```
+Being able to integrate LLMs into a web application has several benefits, both consumer-facing and internal to the business. In terms of user experience, LLMs can be used to deliver personalized recommendations and real-time support through chatbots. They can also increase the accessibility of web applications by providing features such as voice recognition, text-to-speech, and automated translations, making applications more inclusive. On the business side, they can help manage and optimize resources using predictive analytics or help guide infrastructure scaling decisions. Also, LLMs can be useful in increasing security, as they can play a vital role in identifying and mitigating potential threats in real time.
 
-# Auto-generated based on the server's hostname.
-# Set this to the URL used to access the Firezone Web UI.
-default['firezone']['external_url'] = 'https://firezone.example.com'
-
-# Specify the path to your SSL cert and private key.
-# If set to nil (default), a self-signed cert will be generated for you.
-default['firezone']['ssl']['certificate'] = '/path/to/cert.pem'
-default['firezone']['ssl']['certificate_key'] = '/path/to/key.pem'
-
-```
-
-##### Heading Five Code With Max Height
-
-```
-
-# Auto-generated based on the server's hostname.
-# Set this to the URL used to access the Firezone Web UI.
-default['firezone']['external_url'] = 'https://firezone.example.com'
-
-# Specify the path to your SSL cert and private key.
-# If set to nil (default), a self-signed cert will be generated for you.
-default['firezone']['ssl']['certificate'] = '/path/to/cert.pem'
-default['firezone']['ssl']['certificate_key'] = '/path/to/key.pem'
-
-# Auto-generated based on the server's hostname.
-# Set this to the URL used to access the Firezone Web UI.
-default['firezone']['external_url'] = 'https://firezone.example.com'
-
-# Specify the path to your SSL cert and private key.
-# If set to nil (default), a self-signed cert will be generated for you.
-default['firezone']['ssl']['certificate'] = '/path/to/cert.pem'
-default['firezone']['ssl']['certificate_key'] = '/path/to/key.pem'
-
-```
-
-## BLockquote
-
-> Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-
-## Ordered List with horizontal line
-
-1. First item
-2. Second item
-3. Third item
-4. Fourth item
-
----
-
-## Unordered List With Horizontal line
-
-- First item
-- Second item
-- Third item
-- Fourth item
-
----
-
-## Links
-
-My favorite search engine is [Duck Duck Go](https://duckduckgo.com).
-
-## Images
-
-![An old rock in the desert](https://images.unsplash.com/photo-1654475677192-2d869348bb4c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80)
+LLMs are a game-changer in the world of web development, as they are unlocking new potential use-cases and making artificial intelligence accessible to a broader audience. They represent an exciting opportunity for web developers to leverage the most cutting-edge technology available in their applications. However, LLMs do present a steep learning curve, as learning the APIs and conceptual frameworks needed to work with them is difficult and time consuming. However, for those web developers who manage to master them, they will represent a huge addition to an individual’s skillset and marketability to employers.

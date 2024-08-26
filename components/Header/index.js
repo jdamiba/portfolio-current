@@ -31,20 +31,12 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
               </h1>
 
               <div className="flex items-center">
-                {data.darkMode && (
-                  <Button
-                    onClick={() =>
-                      setTheme(theme === "dark" ? "light" : "dark")
-                    }
-                  >
-                    <img
-                      className="h-6"
-                      src={`/images/${
-                        theme === "dark" ? "moon.svg" : "sun.svg"
-                      }`}
-                    ></img>
-                  </Button>
-                )}
+                <Button className="bg-white">
+                  <img
+                    className="h-6"
+                    src={`/images/${theme === "dark" ? "moon.svg" : "sun.svg"}`}
+                  ></img>
+                </Button>
 
                 <Popover.Button>
                   <img
@@ -83,12 +75,6 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
                       Resume
                     </Button>
                   )}
-
-                  <Button
-                    onClick={() => window.open("mailto:hello@chetanverma.com")}
-                  >
-                    Contact
-                  </Button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1">
@@ -100,18 +86,12 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
                   )}
                   {showResume && (
                     <Button
-                      onClick={() => router.push("/resume")}
+                      onClick={() => router.push("#resume-start")}
                       classes="first:ml-1"
                     >
                       Resume
                     </Button>
                   )}
-
-                  <Button
-                    onClick={() => window.open("mailto:hello@chetanverma.com")}
-                  >
-                    Contact
-                  </Button>
                 </div>
               )}
             </Popover.Panel>
@@ -138,16 +118,13 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
             )}
             {showResume && (
               <Button
-                onClick={() => router.push("/resume")}
+                onClick={() => router.push("#resume-start")}
                 classes="first:ml-1"
               >
                 Resume
               </Button>
             )}
 
-            <Button onClick={() => window.open("mailto:hello@chetanverma.com")}>
-              Contact
-            </Button>
             {mounted && theme && data.darkMode && (
               <Button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -167,16 +144,12 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
             )}
             {showResume && (
               <Button
-                onClick={() => router.push("/resume")}
+                onClick={() => router.push("#resume-start")}
                 classes="first:ml-1"
               >
                 Resume
               </Button>
             )}
-
-            <Button onClick={() => window.open("mailto:hello@chetanverma.com")}>
-              Contact
-            </Button>
 
             {mounted && theme && data.darkMode && (
               <Button

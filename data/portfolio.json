@@ -16,7 +16,7 @@
       "link": "https://www.linkedin.com/in/joseph-damiba/"
     },
     { "id": "3", "title": "Twitter", "link": "https://twitter.com/jdamiba" },
-    { "id": "4", "title": "Blog", "link": "https://blog.chetanverma.com/" },
+    { "id": "4", "title": "Blog", "link": "https://josephdamiba.dev/blog/" },
     { "id": "5", "title": "Email", "link": "mailto:jdamiba@gmail.com" }
   ],
   "projects": [
@@ -24,8 +24,8 @@
       "id": "1",
       "title": "EmbedEval",
       "description": "An AI devtool to help developers find the best text embedding model for their RAG chatbot.",
-      "imageSrc": "https://images.unsplash.com/photo-1487837647815-bbc1f30cd0d2?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxzZWFyY2h8Njl8fHBhc3RlbHxlbnwwfHwwfA%3D%3D&auto=format&fit=crop&w=400&q=60",
-      "url": "http://chetanverma.com/"
+      "imageSrc": "/public/embedeval.png",
+      "url": "https://www.embedeval.com"
     },
     {
       "id": "2",
