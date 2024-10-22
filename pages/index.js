@@ -1,20 +1,10 @@
 import { useRef } from "react";
 import Header from "../components/Header";
-import ServiceCard from "../components/ServiceCard";
 import Socials from "../components/Socials";
-import WorkCard from "../components/WorkCard";
 import { useIsomorphicLayoutEffect } from "../utils";
 import { stagger } from "../animations";
 import Footer from "../components/Footer";
 import Head from "next/head";
-import Button from "../components/Button";
-import Link from "next/link";
-import Cursor from "../components/Cursor";
-import { resume } from "../data/portfolio.json";
-import { name, showResume } from "../data/portfolio.json";
-
-// Local Data
-import data from "../data/portfolio.json";
 
 export default function Home() {
   // Ref
@@ -51,10 +41,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className={`relative ${data.showCursor && "cursor-none"}`}>
-      {data.showCursor && <Cursor />}
+    <div className={`relative`}>
       <Head>
-        <title>{data.name}</title>
+        <title>Joseph Damiba</title>
       </Head>
 
       <div className="gradient-circle"></div>
@@ -71,53 +60,81 @@ export default function Home() {
               ref={textOne}
               className="text-3xl tablet:text-6xl laptop:text-6xl laptopl:text-8xl p-1 tablet:p-2 text-bold w-4/5 mob:w-full laptop:w-4/5"
             >
-              {data.headerTaglineOne}
-            </h1>
-            <h1
-              ref={textTwo}
-              className="text-3xl tablet:text-6xl laptop:text-6xl laptopl:text-8xl p-1 tablet:p-2 text-bold w-full laptop:w-4/5"
-            >
-              {data.headerTaglineTwo}
-            </h1>
-            <h1
-              ref={textThree}
-              className="text-3xl tablet:text-6xl laptop:text-6xl laptopl:text-8xl p-1 tablet:p-2 text-bold w-full laptop:w-4/5"
-            >
-              {data.headerTaglineThree}
-            </h1>
-            <h1
-              ref={textFour}
-              className="text-3xl tablet:text-6xl laptop:text-6xl laptopl:text-8xl p-1 tablet:p-2 text-bold w-full laptop:w-4/5"
-            >
-              {data.headerTaglineFour}
+              Hello! I am Joseph Damiba, a full-stack software engineer with six
+              years of experience.
             </h1>
           </div>
 
           <Socials className="mt-2 laptop:mt-5" />
         </div>
         <div className="mt-10 laptop:mt-30 p-2 laptop:p-0" ref={workRef}>
-          <h1 className="text-2xl text-bold">Work.</h1>
+          <h1 className="text-2xl text-bold">Portfolio.</h1>
 
           <div className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 gap-4">
-            <div
-              className="overflow-hidden rounded-lg p-2 laptop:p-4 first:ml-0 link"
-              onClick={() => window.open("https://www.embedeval.com")}
-            >
-              <div
-                className="relative rounded-lg overflow-hidden transition-all ease-out duration-300 h-48 mob:h-auto"
-                style={{ height: "600px" }}
-              >
-                <img
-                  alt={"A screenshot of the EmbedEval homepage"}
-                  className="h-[600px] w-[100%] object-fit hover:scale-110 transition-all ease-out duration-300"
-                  src={"/images/embedeval.png"}
-                ></img>
-              </div>
+            <div className="overflow-hidden rounded-lg p-2 laptop:p-4 first:ml-0 link">
               <h1 className="mt-5 text-3xl font-medium">EmbedEval</h1>
               <h2 className="text-xl opacity-50">
                 An AI devtool to help developers find the best text embedding
-                model for their RAG chatbot.
+                model for their RAG chatbot. Built with Next.js, Qdrant, and
+                Langchain.
               </h2>
+              <h3 className="text-xl opacity-50">
+                <a
+                  href="https://github.com/AmoebaLabsAI/embedeval"
+                  target="_blank"
+                >
+                  Source Code
+                </a>
+              </h3>
+            </div>
+            <div className="overflow-hidden rounded-lg p-2 laptop:p-4 first:ml-0 link">
+              <h1 className="mt-5 text-3xl font-medium">PhotoGen</h1>
+              <h2 className="text-xl opacity-50">
+                An AI photo generation Software-as-a-Service web application
+                that lets users create an AI model of themselves and take
+                pictures. Built using Next.js, Postgres, Replicate, Clerk, and
+                Stripe.
+              </h2>
+              <h3 className="text-xl opacity-50">
+                <a
+                  href="https://github.com/AmoebaLabsAI/photogen"
+                  target="_blank"
+                >
+                  Source Code
+                </a>
+              </h3>
+            </div>
+
+            <div className="overflow-hidden rounded-lg p-2 laptop:p-4 first:ml-0 link">
+              <h1 className="mt-5 text-3xl font-medium">Twitter Clone</h1>
+              <h2 className="text-xl opacity-50">
+                A full-stack clone of Twitter. Built using Next.js, Tailwind
+                CSS, and Postgres.
+              </h2>
+              <h3 className="text-xl opacity-50">
+                <a
+                  href="https://github.com/jdamiba/twitter-clone"
+                  target="_blank"
+                >
+                  Source Code
+                </a>
+              </h3>
+            </div>
+            <div className="overflow-hidden rounded-lg p-2 laptop:p-4 first:ml-0 link">
+              <h1 className="mt-5 text-3xl font-medium">The Pulse</h1>
+              <h2 className="text-xl opacity-50">
+                A website that parses chat messages during Twitch and YouTube
+                livestreams and creates data visualizations for an OBS overlay.
+                Built using Next.js, Postgres, and Amazon EC2.
+              </h2>
+              <h3 className="text-xl opacity-50">
+                <a
+                  href="https://github.com/AmoebaLabsAI/the-pulse-votes-overlay"
+                  target="_blank"
+                >
+                  Source Code
+                </a>
+              </h3>
             </div>
             <div
               className="overflow-hidden rounded-lg p-2 laptop:p-4 first:ml-0 link"
@@ -151,18 +168,36 @@ export default function Home() {
         <div className="mt-10 laptop:mt-40" ref={aboutRef}>
           <h1 className="tablet:m-10 text-2xl text-bold">About.</h1>
           <p className="tablet:m-10 mt-2 text-xl laptop:text-3xl w-full">
-            {data.aboutpara}
+            Joseph Damiba is a full-stack software engineer, bringing with him a
+            unique blend of technical expertise and communication skills. Joseph
+            has a strong foundation in full-stack software engineering in
+            JavaScript/TypeScript as a result of 6 years spent as a front-end
+            web developer for startups in the software, consulting, and video
+            gaming industries. His communication skills were developed as a
+            public speaker in high school and college, where he participated in
+            policy and parliamentary debating, culminating in a role as the
+            Parliamentary Debate Coach at Cornell University, a position he held
+            while earning a a Master's in Industrial and Labor Relations at the
+            university. This prestigious degree enhances his understanding of
+            organizational dynamics and communication strategies, crucial skills
+            for effectively advocating for developers and fostering strong
+            relationships between tech companies and their developer
+            communities. With his technical acumen, communication skills, and
+            interdisciplinary education, Joseph is poised to excel in his new
+            role, driving engagement and innovation in the tech ecosystem.
           </p>
         </div>
 
         <div className="mt-10 w-full flex flex-col">
           <div className={`w-full max-w-4xl rounded-lg shadow-sm`}>
             <h1 className="text-3xl font-bold" id="resume-start">
-              {name} Resume
+              Resume
             </h1>
-            <h2 className="text-xl mt-5">{resume.tagline}</h2>
+            <h2 className="text-xl mt-5">
+              I'm a full-stack software engineer.
+            </h2>
             <h2 className="w-4/5 text-xl mt-5 opacity-50">
-              {resume.description}
+              Architecting and implementing full-stack, distributed systems
             </h2>
             <div className="mt-2">
               <Socials />
@@ -173,25 +208,20 @@ export default function Home() {
               <div className="mt-5 w-full flex mob:flex-col desktop:flex-row justify-between">
                 <div className="text-lg w-2/5">
                   <h2>July 2024 - Present</h2>
-                  <h3 className="text-sm opacity-50">Side Project</h3>
+                  <h3 className="text-sm opacity-50">Part-time</h3>
                 </div>
                 <div className="w-3/5">
                   <h2 className="text-lg font-bold">
-                    Cofounder & CTO at AmoebaLabsAI
+                    Lead Full-stack Software Engineer at The Pulse
                   </h2>
                   <ul className="list-disc">
                     <li className="text-sm my-1 opacity-70">
-                      Designed and developed{" "}
-                      <span
-                        className="underline"
-                        onClick={() => window.open("https://www.embedeval.com")}
-                      >
-                        <a href="https:://www.embedeval.com">EmbedEval.com</a>
-                      </span>
-                      - a web application that uses LangChain and Next.js to
-                      allow developers to compare and contrast the performance
-                      of text embedding models on their own data in the context
-                      of retrieval augmented generation
+                      Designed and implemented a full-stack distributed system
+                      using Amazon EC2, Node.js, Vercel, Next.js, and Postgres
+                      that ingests chat messages written by viewers of YouTube
+                      and Twitch livestreams, parses them, and creates an
+                      interactive data visualization used as an overlay in OBS
+                      for a YouTuber with over 3 million subscribers
                     </li>
                   </ul>
                 </div>
@@ -266,57 +296,39 @@ export default function Home() {
               <div className="mt-2">
                 <h2 className="text-lg">Cornell University</h2>
                 <p className="text-sm mt-2 opacity-50">
-                  Master`&apos;s, Industrial and Labor Relations
+                  Master&apos;s, Industrial and Labor Relations
                 </p>
               </div>
               <div className="mt-2">
                 <h2 className="text-lg">Rochester Institute of Technology</h2>
                 <p className="text-sm mt-2 opacity-50">
-                  Bachelor`&apos;s of Science, Applied Arts and Sciences
+                  Bachelor&apos;s of Science, Applied Arts and Sciences
                 </p>
               </div>
             </div>
             <div className="mt-5">
               <h1 className="text-2xl font-bold">Skills</h1>
               <div className="flex mob:flex-col desktop:flex-row justify-between">
-                {resume.languages && (
-                  <div className="mt-2 mob:mt-5">
-                    <h2 className="text-lg">Languages</h2>
-                    <ul className="list-disc">
-                      {resume.languages.map((language, index) => (
-                        <li key={index} className="ml-5 py-2">
-                          {language}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {resume.frameworks && (
-                  <div className="mt-2 mob:mt-5">
-                    <h2 className="text-lg">Frameworks</h2>
-                    <ul className="list-disc">
-                      {resume.frameworks.map((framework, index) => (
-                        <li key={index} className="ml-5 py-2">
-                          {framework}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {resume.others && (
-                  <div className="mt-2 mob:mt-5">
-                    <h2 className="text-lg">Others</h2>
-                    <ul className="list-disc">
-                      {resume.others.map((other, index) => (
-                        <li key={index} className="ml-5 py-2">
-                          {other}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <div className="mt-2 mob:mt-5">
+                  <h2 className="text-lg">Languages</h2>
+                  <ul className="list-disc">
+                    <li className="ml-5 py-2">JavaScript</li>
+                  </ul>
+                </div>
+                <div className="mt-2 mob:mt-5">
+                  <h2 className="text-lg">Frameworks</h2>
+                  <ul className="list-disc">
+                    <li className="ml-5 py-2">React</li>
+                  </ul>
+                </div>
+                <div className="mt-2 mob:mt-5">
+                  <h2 className="text-lg">Others</h2>
+                  <ul className="list-disc">
+                    <li className="ml-5 py-2">Git</li>
+                    <li className="ml-5 py-2">Postgres</li>
+                    <li className="ml-5 py-2">AWS EC2</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>

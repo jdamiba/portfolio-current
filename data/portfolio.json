@@ -2,8 +2,8 @@
   "name": "Joseph Damiba",
   "headerTaglineOne": "Hello 👋",
   "headerTaglineTwo": "I'm Joseph Damiba,",
-  "headerTaglineThree": "a developer advocate",
-  "headerTaglineFour": " based in Los Angeles, California.",
+  "headerTaglineThree": "a full-stack software engineer",
+  "headerTaglineFour": " with six years of experience.",
   "showCursor": true,
   "showBlog": true,
   "darkMode": true,
@@ -21,6 +21,27 @@
   ],
   "projects": [
     {
+      "id": "3",
+      "title": "PhotoGen",
+      "description": "A fullstack AI photo generation website.",
+      "imageSrc": "/public/photogen.png",
+      "url": "https://photogen-three.vercel.app"
+    },
+    {
+      "id": "5",
+      "title": "Pokedex",
+      "description": "A fullstack Pokedex.",
+      "imageSrc": "/public/pokedex.png",
+      "url": "https://pokedex-frontend-lake.vercel.app/"
+    },
+    {
+      "id": "4",
+      "title": "Twitter Clone",
+      "description": "A recreation of Twitter.",
+      "imageSrc": "/public/twitter.png",
+      "url": "https://twitter-clone-mu-beige-64.vercel.app/"
+    },
+    {
       "id": "1",
       "title": "EmbedEval",
       "description": "An AI devtool to help developers find the best text embedding model for their RAG chatbot.",
@@ -35,16 +56,16 @@
       "url": "https://www.youtube.com/watch?v=yGZ_L1uLa5g"
     }
   ],
-  "aboutpara": "Joseph Damiba is a front-end web developer transitioning to a career in developer advocacy, bringing with him a unique blend of technical expertise and communication skills. Joseph has a strong foundation in full-stack software engineering in JavaScript/TypeScript as a result of 6 years spent as a front-end web developer for startups in the software, consulting, and video gaming industries. His communication skills were developed as a public speaker in high school and college, where he participated in policy and parliamentary debating, culminating in a role as the Parliamentary Debate Coach at Cornell University, a position he held while earning a a Master's in Industrial and Labor Relations at the university. This prestigious degree enhances his understanding of organizational dynamics and communication strategies, crucial skills for effectively advocating for developers and fostering strong relationships between tech companies and their developer communities. With his technical acumen, communication skills, and interdisciplinary education, Joseph is poised to excel in his new role as a developer advocate, driving engagement and innovation in the tech ecosystem.",
+  "aboutpara": "Joseph Damiba is a full-stack software engineer, bringing with him a unique blend of technical expertise and communication skills. Joseph has a strong foundation in full-stack software engineering in JavaScript/TypeScript as a result of 6 years spent as a front-end web developer for startups in the software, consulting, and video gaming industries. His communication skills were developed as a public speaker in high school and college, where he participated in policy and parliamentary debating, culminating in a role as the Parliamentary Debate Coach at Cornell University, a position he held while earning a a Master's in Industrial and Labor Relations at the university. This prestigious degree enhances his understanding of organizational dynamics and communication strategies, crucial skills for effectively advocating for developers and fostering strong relationships between tech companies and their developer communities. With his technical acumen, communication skills, and interdisciplinary education, Joseph is poised to excel in his new role, driving engagement and innovation in the tech ecosystem.",
   "resume": {
-    "tagline": "👋  I'm a front-end web developer transitioning to developer advocacy .",
-    "description": "Well-versed with using Next.js, TailwindCSS, and LangChain to build RAG chatbots",
+    "tagline": "👋  I'm a full-stack software engineer.",
+    "description": "Architecting and implementing full-stack, distributed systems",
     "experiences": [
       {
         "id": "1",
         "dates": "July 2024 - Present",
-        "type": "Side Project",
-        "position": "Cofounder and CTO at Amoeba Labs",
+        "type": "Part-time",
+        "position": "Lead Software Engineer",
         "bullets": ", Bullet Two"
       },
       {
@@ -62,6 +83,6 @@
     },
     "languages": ["Javascript", "HTML5", "CSS", "Python"],
     "frameworks": ["React", "Typescript", "NodeJs", "LangChain", "NextJS"],
-    "others": ["Figma", "Git"]
+    "others": ["Git", "Postgres", "AWS EC2"]
   }
 }
