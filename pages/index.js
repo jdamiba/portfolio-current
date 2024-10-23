@@ -82,6 +82,7 @@ export default function Home() {
                 <a
                   href="https://github.com/AmoebaLabsAI/embedeval"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   Source Code
                 </a>
@@ -99,6 +100,7 @@ export default function Home() {
                 <a
                   href="https://github.com/AmoebaLabsAI/photogen"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   Source Code
                 </a>
@@ -115,6 +117,7 @@ export default function Home() {
                 <a
                   href="https://github.com/jdamiba/twitter-clone"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   Source Code
                 </a>
@@ -131,6 +134,7 @@ export default function Home() {
                 <a
                   href="https://github.com/AmoebaLabsAI/the-pulse-votes-overlay"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   Source Code
                 </a>
@@ -177,11 +181,11 @@ export default function Home() {
             public speaker in high school and college, where he participated in
             policy and parliamentary debating, culminating in a role as the
             Parliamentary Debate Coach at Cornell University, a position he held
-            while earning a a Master's in Industrial and Labor Relations at the
-            university. This prestigious degree enhances his understanding of
-            organizational dynamics and communication strategies, crucial skills
-            for effectively advocating for developers and fostering strong
-            relationships between tech companies and their developer
+            while earning a a Master&apos;s in Industrial and Labor Relations at
+            the university. This prestigious degree enhances his understanding
+            of organizational dynamics and communication strategies, crucial
+            skills for effectively advocating for developers and fostering
+            strong relationships between tech companies and their developer
             communities. With his technical acumen, communication skills, and
             interdisciplinary education, Joseph is poised to excel in his new
             role, driving engagement and innovation in the tech ecosystem.
@@ -194,7 +198,7 @@ export default function Home() {
               Resume
             </h1>
             <h2 className="text-xl mt-5">
-              I'm a full-stack software engineer.
+              I&apos;m a full-stack software engineer.
             </h2>
             <h2 className="w-4/5 text-xl mt-5 opacity-50">
               Architecting and implementing full-stack, distributed systems
