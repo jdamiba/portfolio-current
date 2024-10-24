@@ -110,8 +110,9 @@ export default function Home() {
             <div className="overflow-hidden rounded-lg p-2 laptop:p-4 first:ml-0 link">
               <h1 className="mt-5 text-3xl font-medium">Twitter Clone</h1>
               <h2 className="text-xl opacity-50">
-                A full-stack clone of Twitter. Built using Next.js, Tailwind
-                CSS, and Postgres.
+                A text-based social network where users can write posts and
+                follow other users. Built using Next.js, Tailwind CSS, and
+                Postgres.
               </h2>
               <h3 className="text-xl opacity-50">
                 <a
@@ -123,6 +124,27 @@ export default function Home() {
                 </a>
               </h3>
             </div>
+
+            <div className="overflow-hidden rounded-lg p-2 laptop:p-4 first:ml-0 link">
+              <h1 className="mt-5 text-3xl font-medium">Pokemon API</h1>
+              <h2 className="text-xl opacity-50">
+                An API server that serves information about Pokemon. Features
+                user authentication (signup, login), authorization with
+                role-based access control (admin, user), token-based
+                authentication using JWT (JSON Web Tokens), and secure password
+                handling with hashing. Built with Node.js and MongoDB.
+              </h2>
+              <h3 className="text-xl opacity-50">
+                <a
+                  href="https://github.com/jdamiba/pokedex-api"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Source Code
+                </a>
+              </h3>
+            </div>
+
             <div className="overflow-hidden rounded-lg p-2 laptop:p-4 first:ml-0 link">
               <h1 className="mt-5 text-3xl font-medium">The Pulse</h1>
               <h2 className="text-xl opacity-50">
