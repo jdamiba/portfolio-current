@@ -1,4 +1,5 @@
-import Image from "next/image";
+"use client";
+
 import Link from "next/link";
 
 export default function Home() {
@@ -56,7 +57,7 @@ export default function Home() {
               className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
             >
               <h4 className="text-xl font-bold mb-2">
-                What It's Like To Learn About LangChain
+                What It`&apos;s Like To Learn About LangChain
               </h4>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 A YouTube video I made about learning about LangChain.
@@ -136,16 +137,16 @@ export default function Home() {
               </p>
               <ul className="list-disc list-inside mt-2 text-gray-700 dark:text-gray-200">
                 <li>
-                  Worked with the marketing team to maintain Plotly's website
-                  daily, regularly adding new user interface components and
-                  content for feature/marketing pages, from initial conception
-                  in Figma designs to deploying the React-based Next.js
-                  application to Vercel
+                  Worked with the marketing team to maintain Plotly`&apos;s
+                  website daily, regularly adding new user interface components
+                  and content for feature/marketing pages, from initial
+                  conception in Figma designs to deploying the React-based
+                  Next.js application to Vercel
                 </li>
                 <li>
-                  Collaborated with the community to manage Plotly's open source
-                  JavaScript, Python, and R data visualization documentation and
-                  created the Dash For Julia User Guide
+                  Collaborated with the community to manage Plotly`&apos;s open
+                  source JavaScript, Python, and R data visualization
+                  documentation and created the Dash For Julia User Guide
                 </li>
               </ul>
             </div>

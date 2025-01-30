@@ -1,13 +1,14 @@
-import Link from "next/link";
+"use client";
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <h1 className="text-4xl font-bold mb-4">404</h1>
-      <p className="text-xl mb-4">Page Not Found</p>
-      <Link href="/" className="text-blue-500 hover:text-blue-700 underline">
-        Return Home
-      </Link>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold mb-4">404 - Page Not Found</h2>
+        <p className="text-gray-600">
+          The page you&apos;re looking for doesn&apos;t exist.
+        </p>
+      </div>
     </div>
   );
 }
