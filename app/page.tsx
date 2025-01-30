@@ -136,14 +136,14 @@ export default function Home() {
               </p>
               <ul className="list-disc list-inside mt-2 text-gray-700 dark:text-gray-200">
                 <li>
-                  Worked with the marketing team to maintain Plotly’s website
+                  Worked with the marketing team to maintain Plotly's website
                   daily, regularly adding new user interface components and
                   content for feature/marketing pages, from initial conception
                   in Figma designs to deploying the React-based Next.js
                   application to Vercel
                 </li>
                 <li>
-                  Collaborated with the community to manage Plotly’s open source
+                  Collaborated with the community to manage Plotly's open source
                   JavaScript, Python, and R data visualization documentation and
                   created the Dash For Julia User Guide
                 </li>
