@@ -57,10 +57,11 @@ export default function Home() {
               className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
             >
               <h4 className="text-xl font-bold mb-2">
-                What It`&apos;s Like To Learn About LangChain
+                What It&apos;s Like To Learn About LangChain
               </h4>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                A YouTube video I made about learning about LangChain.
+                A short film I produced, wrote, and starred in about learning
+                about the LangChain framework.
               </p>
               <div className="flex gap-2">
                 <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
@@ -87,13 +88,16 @@ export default function Home() {
               </p>
               <ul className="list-disc list-inside mt-2 text-gray-700 dark:text-gray-200">
                 <li>
-                  Architected Node.js web service for live stream chat
-                  visualizations
+                  Architected and maintained a Node.js web service transforming
+                  live stream chats into real-time data visualizations
                 </li>
                 <li>
-                  Developed a Discord bot which allows paid Substack subscribers
-                  to verify their email addresses in order to gain access to a
-                  private members-only channel
+                  Developed a Discord bot for Substack subscribers, enabling
+                  seamless authentication and exclusive content access.
+                </li>
+                <li>
+                  Led backend infrastructure decisions, ensuring scalability and
+                  efficiency.
                 </li>
               </ul>
             </div>
@@ -104,8 +108,18 @@ export default function Home() {
                 Artie • Sept 2022 - Jan 2024
               </p>
               <ul className="list-disc list-inside mt-2 text-gray-700 dark:text-gray-200">
-                <li>Led development of PongLegends.com using Next.js</li>
-                <li>Implemented PWA features and 3D game integration</li>
+                <li>
+                  Owned the development and maintenance of PongLegends.com, a
+                  full-stack Next.js web app delivering a 3D gaming experience.
+                </li>
+                <li>
+                  Championed UI/UX enhancements, reducing page load time by 30%
+                  and increasing engagement metrics
+                </li>
+                <li>
+                  Collaborated with backend engineers to optimize API
+                  consumption and ensure seamless data synchronization.
+                </li>
               </ul>
             </div>
 
@@ -137,16 +151,16 @@ export default function Home() {
               </p>
               <ul className="list-disc list-inside mt-2 text-gray-700 dark:text-gray-200">
                 <li>
-                  Worked with the marketing team to maintain Plotly`&apos;s
-                  website daily, regularly adding new user interface components
-                  and content for feature/marketing pages, from initial
-                  conception in Figma designs to deploying the React-based
-                  Next.js application to Vercel
+                  Developed and maintained Plotly’s React-based Next.js
+                  marketing site, improving performance and user engagement.
                 </li>
                 <li>
-                  Collaborated with the community to manage Plotly`&apos;s open
-                  source JavaScript, Python, and R data visualization
-                  documentation and created the Dash For Julia User Guide
+                  Collaborated with the open-source community to enhance Dash
+                  (Python, R, and Julia) visualization documentation.
+                </li>
+                <li>
+                  Worked closely with designers and marketers to launch
+                  high-impact feature pages and optimize conversion funnels.
                 </li>
               </ul>
             </div>
