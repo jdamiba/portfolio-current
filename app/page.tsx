@@ -51,6 +51,28 @@ export default function Home() {
             </a>
 
             <a
+              href="https://io-plasma-torus.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
+            >
+              <h4 className="text-xl font-bold mb-2">
+                IO Plasma Torus Simulation
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                A 3D plasma torus simulation using WebGL and Three.js.
+              </p>
+              <div className="flex gap-2">
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Next.js
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Three.js
+                </span>
+              </div>
+            </a>
+
+            <a
               href="https://youtu.be/yGZ_L1uLa5g"
               target="_blank"
               rel="noopener noreferrer"
