@@ -27,6 +27,42 @@ export default function Home() {
           <h3 className="text-2xl font-bold mb-6">Featured Projects</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <a
+              href="https://youtu.be/yGZ_L1uLa5g"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
+            >
+              <h4 className="text-xl font-bold mb-2">
+                What It&apos;s Like To Learn About LangChain
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                A short film I produced, wrote, and starred in about learning
+                about the LangChain framework.
+              </p>
+              <div className="relative w-full aspect-video mb-4">
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src="https://www.youtube.com/embed/yGZ_L1uLa5g?si=xKtyzPUJ1_YuMXjN"
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                ></iframe>
+              </div>
+
+              <div className="flex gap-2">
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Technical Writing
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Python
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  AI
+                </span>
+              </div>
+            </a>
+            <a
               href="https://photogen.dev"
               target="_blank"
               rel="noopener noreferrer"
@@ -68,32 +104,6 @@ export default function Home() {
                 </span>
                 <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
                   Three.js
-                </span>
-              </div>
-            </a>
-
-            <a
-              href="https://youtu.be/yGZ_L1uLa5g"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
-            >
-              <h4 className="text-xl font-bold mb-2">
-                What It&apos;s Like To Learn About LangChain
-              </h4>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
-                A short film I produced, wrote, and starred in about learning
-                about the LangChain framework.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
-                  Technical Writing
-                </span>
-                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
-                  Python
-                </span>
-                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
-                  AI
                 </span>
               </div>
             </a>
@@ -173,7 +183,7 @@ export default function Home() {
               </p>
               <ul className="list-disc list-inside mt-2 text-gray-700 dark:text-gray-200">
                 <li>
-                  Developed and maintained Plotly’s React-based Next.js
+                  Developed and maintained Plotly&apos;s React-based Next.js
                   marketing site, improving performance and user engagement.
                 </li>
                 <li>
