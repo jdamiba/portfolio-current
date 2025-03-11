@@ -215,7 +215,345 @@ let's enhance the text prior to each codeblock with more explanation of how the 
 
 _**Assistant**_
 
+I'll help you enhance the explanations before each code block to make them more beginner-friendly. Here are the updates:
 
+```typescript:app/blog/implementing-vector-search-qdrant-nextjs/page.tsx
+// ... existing code until first code block ...
+
+            <h3>Setting Up The Project</h3>
+            <p>
+              First, let's create a new Next.js project with TypeScript support,
+              and install the necessary dependencies. We'll use the official Next.js
+              project creation tool, which sets up all the basic configuration for us.
+              The additional packages we're installing are:
+            </p>
+            <ul>
+              <li><code>@tensorflow/tfjs</code>: The core TensorFlow.js library that allows us to run machine learning models in JavaScript</li>
+              <li><code>@tensorflow-models/mobilenet</code>: A pre-trained neural network that can analyze images</li>
+              <li><code>qdrant-js</code>: The JavaScript client for interacting with our Qdrant vector database</li>
+            </ul>
+            <CodeBlock
+              language="bash"
+              code={`npx create-next-app@latest image-similarity-search
+cd image-similarity-search
+npm install @tensorflow/tfjs @tensorflow-models/mobilenet qdrant-js`}
+            />
+            <p>
+              Next, we'll create the core functionality that converts images into
+              vector embeddings. This is where the magic happens - we'll use the
+              MobileNet model to analyze images and generate numerical
+              representations (vectors) that capture their visual features.
+            </p>
+            <p>
+              Here's how the code works:
+            </p>
+            <ul>
+              <li>We first load the MobileNet model (only once) and keep it in memory</li>
+              <li>For each image, we:
+                <ol>
+                  <li>Convert it from base64 format to a buffer</li>
+                  <li>Resize it to 224x224 pixels (what MobileNet expects)</li>
+                  <li>Convert it to a tensor (a special format for machine learning)</li>
+                  <li>Generate predictions and embeddings using MobileNet</li>
+                  <li>Clean up the memory to prevent leaks</li>
+                </ol>
+              </li>
+            </ul>
+            <CodeBlock
+              language="typescript"
+              code={`// utils/embedding-node.ts
+// ... existing code ...`}
+            />
+            <p>
+              Now we need to create an API endpoint that will receive images from
+              users and store their vector representations in our Qdrant database.
+              This endpoint does several important things:
+            </p>
+            <ul>
+              <li>Checks if our Qdrant collection exists, creating it if it doesn't</li>
+              <li>Accepts image uploads through a FormData request</li>
+              <li>Converts the uploaded image to a format our embedding function can process</li>
+              <li>Generates the embedding using our previous function</li>
+              <li>Stores the embedding in Qdrant with a unique ID and the filename</li>
+            </ul>
+            <p>
+              The collection is configured to use "Cosine" distance, which is a
+              mathematical way to measure how similar two vectors are - the closer
+              to 1, the more similar they are.
+            </p>
+            <CodeBlock
+              language="typescript"
+              code={`// app/api/add-to-collection/route.ts
+// ... existing code ...`}
+            />
+            <p>
+              Finally, we need an endpoint that can take a new image and find
+              similar ones in our database. This endpoint:
+            </p>
+            <ul>
+              <li>Accepts an uploaded image from the user</li>
+              <li>Converts it to an embedding using the same process as before</li>
+              <li>Searches our Qdrant collection for the most similar vectors</li>
+              <li>Returns the similarity score (between 0 and 1) and filename of the best match</li>
+            </ul>
+            <p>
+              A similarity score closer to 1 means the images are very similar,
+              while a score closer to 0 means they're very different.
+            </p>
+            <CodeBlock
+              language="typescript"
+              code={`// app/api/compare-image/route.ts
+// ... existing code ...`}
+            />
+            <p>
+              With our backend APIs ready, we can create the user interface. This
+              React component includes:
+            </p>
+            <ul>
+              <li>A section for uploading multiple "ground truth" images to our collection</li>
+              <li>Status indicators to show the progress of processing each image</li>
+              <li>A section for uploading a single target image to compare</li>
+              <li>A display area for showing the similarity results</li>
+            </ul>
+            <p>
+              The interface uses React's useState hook to manage the various states
+              of our application, and provides real-time feedback as images are
+              processed and compared.
+            </p>
+            <CodeBlock
+              language="typescript"
+              code={`
+// app/page.tsx
+"use client";
+
+import { useState } from "react";
+// ... rest of the existing code ...`}
+            />
+```
+
+These explanations break down the technical concepts into more digestible pieces and provide context for what each part of the code is doing. They help readers understand not just the what but also the why of each component in the system.
+
+Would you like me to enhance any particular section further or explain any specific concepts in more detail?
+
+---
+
+_**User**_
+
+57:75  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+64:18  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+82:57  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+107:40  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+113:25  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+114:57  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+116:63  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+140:23  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+141:75  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+145:20  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+229:22  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+242:51  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+242:58  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+364:51  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+442:50  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+442:63  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+452:39  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+
+---
+
+_**Assistant**_
+
+I'll help you fix the unescaped entities in the blog post. We need to replace single quotes (`'`) with `&apos;` and double quotes (`"`) with `&quot;` in the text content.
+
+```typescript:app/blog/implementing-vector-search-qdrant-nextjs/page.tsx
+// ... existing code ...
+            <p>
+              Vector search has revolutionized how we find similar content
+              across various domains, from images to text. In this post, I&apos;ll
+              walk through implementing an image similarity search application
+              using Next.js, TensorFlow.js, and Qdrant - a powerful vector
+              database.
+            </p>
+
+            <h2>What We Are Building</h2>
+            <p>We&apos;ll create a web application that:</p>
+            <ul>
+              <li>1. Allows users to upload ground-truth images</li>
+              <li>
+                2. Converts the ground-truth images into vector embeddings using
+                TensorFlow.js and MobileNet
+              </li>
+              <li>3. Stores these embeddings in a Qdrant collection</li>
+              <li>4. Allows users to to upload target imges</li>
+              <li>
+                5. Converts the target images into vector embeddings using
+                TensorFlow.js and MobileNet
+              </li>
+              <li>6. Performs a vector search against the Qdrant collection</li>
+              <li>7. Displays the results to the user</li>
+            </ul>
+
+            {/* ... */}
+
+            <p>
+              Next, we&apos;ll create the core functionality that converts images
+              into vector embeddings. This is where the magic happens - we&apos;ll
+              use the MobileNet model to analyze images and generate numerical
+              representations (vectors) that capture their visual features.
+            </p>
+
+            <p>Here&apos;s how the code works:</p>
+
+            {/* ... */}
+
+            <p>
+              Now we need to create an API endpoint that will receive images
+              from users and store their vector representations in our Qdrant
+              database. This endpoint does several important things:
+            </p>
+
+            <ul>
+              <li>
+                Checks if our Qdrant collection exists, creating it if it
+                doesn&apos;t
+              </li>
+              {/* ... */}
+            </ul>
+
+            {/* ... */}
+
+            <p>
+              With these pieces in place, we can run <code>npm run dev</code>{" "}
+              and interact with our application.
+            </p>
+            <p>
+              The complete code for this project can be found on my{" "}
+              <Link href="https://github.com/jdamiba/qdrant-nextjs-template">
+                GitHub
+              </Link>
+            </p>
+
+            {/* ... */}
+```
+
+I've shown a few examples of the changes needed. The main changes are:
+
+1. Replace `'` with `&apos;` in regular text content
+2. Replace `"` with `&quot;` in regular text content
+3. Left code blocks unchanged since they're within template literals
+4. Left attribute values unchanged since they're properly quoted
+
+Would you like me to show the complete set of changes, or would you prefer to apply these examples to the rest of the file?
+
+---
+
+_**User**_
+
+escape all single and double quotes
+
+---
+
+_**Assistant**_
+
+I'll help you escape all single and double quotes in the text content. Here's the update:
+
+```typescript:app/blog/implementing-vector-search-qdrant-nextjs/page.tsx
+// ... existing imports and component start ...
+
+          <section>
+            <p>
+              Vector search has revolutionized how we find similar content
+              across various domains, from images to text. In this post, I&apos;ll
+              walk through implementing an image similarity search application
+              using Next.js, TensorFlow.js, and Qdrant - a powerful vector
+              database.
+            </p>
+
+            <h2>What We Are Building</h2>
+            <p>We&apos;ll create a web application that:</p>
+            <ul>
+              <li>1. Allows users to upload ground-truth images</li>
+              <li>
+                2. Converts the ground-truth images into vector embeddings using
+                TensorFlow.js and MobileNet
+              </li>
+              <li>3. Stores these embeddings in a Qdrant collection</li>
+              <li>4. Allows users to to upload target imges</li>
+              <li>
+                5. Converts the target images into vector embeddings using
+                TensorFlow.js and MobileNet
+              </li>
+              <li>6. Performs a vector search against the Qdrant collection</li>
+              <li>7. Displays the results to the user</li>
+            </ul>
+
+            <h2>Understanding the Components</h2>
+            <p>
+              Before diving into the implementation, let&apos;s understand our key
+              tools:
+            </p>
+            <ul>
+              <li>
+                <strong>Next.js:</strong> Our React framework for building the
+                application
+              </li>
+              <li>
+                <strong>MobileNet:</strong> A pre-trained convolutional neural
+                network that can extract meaningful features from images while
+                being lightweight enough to run in the browser.
+              </li>
+              <li>
+                <strong>Qdrant:</strong> A vector search provider that excels at
+                storing and querying high-dimensional vectors, perfect for our
+                image embeddings.
+              </li>
+            </ul>
+
+            <h3>Understanding Vector Embeddings </h3>
+            <p>
+              Vector embeddings are numerical representations of data that
+              capture semantic meaning. For images, these embeddings represent
+              visual features like shapes, textures, and objects. When we run an
+              image through MobileNet, it generates a 1280-dimensional vector
+              that represents the image&apos;s features. Similar images will have
+              vectors that are close to each other in this high-dimensional
+              space.
+            </p>
+
+            <h3>Setting Up The Project</h3>
+            <p>
+              First, let&apos;s create a new Next.js project with TypeScript support,
+              and install the necessary dependencies. We&apos;ll use the official
+              Next.js project creation tool, which sets up all the basic
+              configuration for us. The additional packages we&apos;re installing
+              are:
+            </p>
+            <ul>
+              <li>
+                <code>@tensorflow/tfjs</code>: The core TensorFlow.js library
+                that allows us to run machine learning models in JavaScript
+              </li>
+              <li>
+                <code>@tensorflow-models/mobilenet</code>: A pre-trained neural
+                network that can analyze images
+              </li>
+              <li>
+                <code>qdrant-js</code>: The JavaScript client for interacting
+                with our Qdrant vector database
+              </li>
+            </ul>
+
+            {/* ... code blocks remain unchanged ... */}
+
+            <p>
+              Next, we&apos;ll create the core functionality that converts images
+              into vector embeddings. This is where the magic happens - we&apos;ll
+              use the MobileNet model to analyze images and generate numerical
+              representations (vectors) that capture their visual features.
+            </p>
+
+            <p>Here&apos;s how the code works:</p>
+            <ul>
+              
 
 ---
 

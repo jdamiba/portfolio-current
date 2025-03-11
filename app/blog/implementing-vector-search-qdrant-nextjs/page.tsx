@@ -54,14 +54,14 @@ export default function BlogPost() {
           <section>
             <p>
               Vector search has revolutionized how we find similar content
-              across various domains, from images to text. In this post, I'll
-              walk through implementing an image similarity search application
-              using Next.js, TensorFlow.js, and Qdrant - a powerful vector
-              database.
+              across various domains, from images to text. In this post,
+              I&apos;ll walk through implementing an image similarity search
+              application using Next.js, TensorFlow.js, and Qdrant - a powerful
+              vector database.
             </p>
 
             <h2>What We Are Building</h2>
-            <p>We'll create a web application that:</p>
+            <p>We&apos;ll create a web application that:</p>
             <ul>
               <li>1. Allows users to upload ground-truth images</li>
               <li>
@@ -79,8 +79,8 @@ export default function BlogPost() {
             </ul>
             <h2>Understanding the Components</h2>
             <p>
-              Before diving into the implementation, let's understand our key
-              tools:
+              Before diving into the implementation, let&apos;s understand our
+              key tools:
             </p>
             <ul>
               <li>
@@ -104,17 +104,17 @@ export default function BlogPost() {
               capture semantic meaning. For images, these embeddings represent
               visual features like shapes, textures, and objects. When we run an
               image through MobileNet, it generates a 1280-dimensional vector
-              that represents the image's features. Similar images will have
-              vectors that are close to each other in this high-dimensional
+              that represents the image&apos;s features. Similar images will
+              have vectors that are close to each other in this high-dimensional
               space.
             </p>
             <h3>Setting Up The Project</h3>
             <p>
-              First, let's create a new Next.js project with TypeScript support,
-              and install the necessary dependencies. We'll use the official
-              Next.js project creation tool, which sets up all the basic
-              configuration for us. The additional packages we're installing
-              are:
+              First, let&apos;s create a new Next.js project with TypeScript
+              support, and install the necessary dependencies. We&apos;ll use
+              the official Next.js project creation tool, which sets up all the
+              basic configuration for us. The additional packages we&apos;re
+              installing are:
             </p>
             <ul>
               <li>
@@ -137,12 +137,13 @@ cd image-similarity-search
 npm install @tensorflow/tfjs @tensorflow-models/mobilenet qdrant-js`}
             />
             <p>
-              Next, we'll create the core functionality that converts images
-              into vector embeddings. This is where the magic happens - we'll
-              use the MobileNet model to analyze images and generate numerical
-              representations (vectors) that capture their visual features.
+              Next, we&apos;ll create the core functionality that converts
+              images into vector embeddings. This is where the magic happens -
+              we&apos;ll use the MobileNet model to analyze images and generate
+              numerical representations (vectors) that capture their visual
+              features.
             </p>
-            <p>Here's how the code works:</p>
+            <p>Here&apos;s how the code works:</p>
             <ul>
               <li>
                 We first load the MobileNet model (only once) and keep it in
@@ -226,7 +227,7 @@ export async function generateEmbedding(
             <ul>
               <li>
                 Checks if our Qdrant collection exists, creating it if it
-                doesn't
+                doesn&apos;t
               </li>
               <li>Accepts image uploads through a FormData request</li>
               <li>
@@ -239,9 +240,9 @@ export async function generateEmbedding(
               </li>
             </ul>
             <p>
-              The collection is configured to use "Cosine" distance, which is a
-              mathematical way to measure how similar two vectors are - the
-              closer to 1, the more similar they are.
+              The collection is configured to use &quot;Cosine&quot; distance,
+              which is a mathematical way to measure how similar two vectors are
+              - the closer to 1, the more similar they are.
             </p>
             <CodeBlock
               language="typescript"
@@ -361,7 +362,7 @@ export async function POST(request: NextRequest) {
             </ul>
             <p>
               A similarity score closer to 1 means the images are very similar,
-              while a score closer to 0 means they're very different.
+              while a score closer to 0 means they&apos;re very different.
             </p>
             <CodeBlock
               language="typescript"
@@ -439,8 +440,8 @@ export async function POST(request: NextRequest) {
             </p>
             <ul>
               <li>
-                A section for uploading multiple "ground truth" images to our
-                collection
+                A section for uploading multiple &quot;ground truth&quot; images
+                to our collection
               </li>
               <li>
                 Status indicators to show the progress of processing each image
@@ -449,9 +450,9 @@ export async function POST(request: NextRequest) {
               <li>A display area for showing the similarity results</li>
             </ul>
             <p>
-              The interface uses React's useState hook to manage the various
-              states of our application, and provides real-time feedback as
-              images are processed and compared.
+              The interface uses React&apos;s useState hook to manage the
+              various states of our application, and provides real-time feedback
+              as images are processed and compared.
             </p>
             <CodeBlock
               language="typescript"
@@ -666,7 +667,7 @@ export default function Home() {
 }`}
             />
             <p>
-              With these pieces in place, we can run <code> npm run dev</code>{" "}
+              With these pieces in place, we can run <code>npm run dev</code>{" "}
               and interact with our application.
             </p>
             <p>
