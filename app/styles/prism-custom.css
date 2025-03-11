@@ -1,0 +1,36 @@
+pre[class*="language-"] {
+  background: #1a1a1a !important;
+  border-radius: 0.5rem !important;
+  margin: 2rem 0 !important;
+  padding: 1.5rem !important;
+  overflow-x: auto !important;
+}
+
+code[class*="language-"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.875rem !important;
+  line-height: 1.7 !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #6b7280 !important;
+}
+
+.token.function {
+  color: #93c5fd !important;
+}
+
+.token.keyword {
+  color: #f472b6 !important;
+}
+
+.token.string {
+  color: #86efac !important;
+}
+
+.token.number {
+  color: #fca5a5 !important;
+} 
