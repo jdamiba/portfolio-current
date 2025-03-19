@@ -53,11 +53,14 @@ export default function BlogPost() {
 
           <section>
             <p>
-              Vector search has revolutionized how we find similar content
-              across various domains, from images to text. In this post,
-              I&apos;ll walk through implementing an image similarity search
-              application using Next.js, TensorFlow.js, and Qdrant - a powerful
-              vector database.
+              We live in very exciting times, where there are a variety of
+              powerful free tools that allow us to create applications that
+              would have been impossible just a few years ago. To take just one
+              example, the introduction of vector databases has revolutionized
+              how we find similar content across various domains, from images to
+              text. In this post, I&apos;ll walk through implementing an image
+              similarity search application using Next.js, TensorFlow.js, and
+              Qdrant - a powerful vector database.
             </p>
 
             <h2>What We Are Building</h2>

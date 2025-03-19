@@ -139,6 +139,32 @@ export default function Home() {
               </div>
             </a>
           </div>
+          <div className="space-y-6">
+            <a
+              href="/blog/introducing-ives"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
+            >
+              <h4 className="text-xl font-bold mb-2">
+                Introducing Ives - Your Project Manager for Your Job Search
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                An AI powered project manager for your job search.
+              </p>
+              <div className="flex gap-2">
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  AI
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  JavaScript
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Tutorial
+                </span>
+              </div>
+            </a>
+          </div>
         </section>
 
         <section className="mb-16">
