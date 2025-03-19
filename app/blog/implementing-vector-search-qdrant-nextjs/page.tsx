@@ -27,7 +27,9 @@ export default function BlogPost() {
           prose-pre:!p-0 
           prose-pre:!bg-transparent dark:prose-pre:!bg-transparent 
           prose-pre:!border-0
-          prose-code:!text-gray-800 dark:prose-code:!text-gray-200"
+          prose-code:!text-gray-800 dark:prose-code:!text-gray-200
+          prose-a:!text-blue-600 dark:prose-a:!text-blue-400
+          prose-a:!underline"
         >
           <header className="mb-16 not-prose">
             <div className="flex gap-2 mb-6">

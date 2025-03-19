@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -32,13 +33,6 @@ export default function Home() {
               rel="noopener noreferrer"
               className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
             >
-              <h4 className="text-xl font-bold mb-2">
-                What It&apos;s Like To Learn About LangChain
-              </h4>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
-                A short film I produced, wrote, and starred in about learning
-                about the LangChain framework.
-              </p>
               <div className="relative w-full aspect-video mb-4">
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
@@ -50,6 +44,13 @@ export default function Home() {
                 ></iframe>
               </div>
 
+              <h4 className="text-xl font-bold mb-2">
+                What It&apos;s Like To Learn About LangChain
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                A short film I produced, wrote, and starred in about learning
+                about the LangChain framework.
+              </p>
               <div className="flex gap-2">
                 <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
                   Technical Writing
@@ -68,6 +69,14 @@ export default function Home() {
               rel="noopener noreferrer"
               className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
             >
+              <div className="relative w-full aspect-video mb-4">
+                <Image
+                  src="/images/photogen.png"
+                  alt="Photogen - AI Image Generator"
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              </div>
               <h4 className="text-xl font-bold mb-2">Photogen</h4>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 A full-stack Next.js application serving an AI image generator,
@@ -87,11 +96,47 @@ export default function Home() {
             </a>
 
             <a
+              href="https://ives-frontend.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
+            >
+              <div className="relative w-full aspect-video mb-4">
+                <Image
+                  src="/images/ives.png"
+                  alt="Ives - AI Project Manager"
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              </div>
+              <h4 className="text-xl font-bold mb-2">Ives</h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                An AI powered project manager for your job search.
+              </p>
+              <div className="flex gap-2">
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Next.js
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Qdrant
+                </span>
+              </div>
+            </a>
+
+            <a
               href="https://io-plasma-torus.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
             >
+              <div className="relative w-full aspect-video mb-4">
+                <Image
+                  src="/images/plasma.png"
+                  alt="IO Plasma Torus Simulation"
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              </div>
               <h4 className="text-xl font-bold mb-2">
                 IO Plasma Torus Simulation
               </h4>

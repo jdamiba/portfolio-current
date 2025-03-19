@@ -78,13 +78,12 @@ export default function BlogPost() {
             <p>
               That&apos;s why along with my brother,{" "}
               <a href="https://www.twitter.com/ptdamiba"></a>Thierry Damiba, we
-              have created
-              <a href="https://ives-frontend.vercel.app/">Ives</a>, an
-              AI-powered project manager that helps software engineers structure
-              their efforts while you search for work. All you need to do is to
-              upload your resume, and Ives takes care of everything else,
-              creating a personalized calendar of daily activities for you to
-              perform, which culminate in you deploying projects that
+              have created <a href="https://ives-frontend.vercel.app/">Ives</a>,
+              an AI-powered project manager that helps software engineers
+              structure their efforts while you search for work. All you need to
+              do is to upload your resume, and Ives takes care of everything
+              else, creating a personalized calendar of daily activities for you
+              to perform, which culminate in you deploying projects that
               demonstrate your skillset to hiring managers and recruiters.{" "}
             </p>
 
