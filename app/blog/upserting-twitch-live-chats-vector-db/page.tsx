@@ -92,8 +92,8 @@ export default function BlogPost() {
                 URL of your Qdrant cluster if you are using Qdrant Cloud or to
                 the local address if you are using Qdrant locally. We also need
                 a QDRANT_API_KEY variable, which can be found in your Qdrant
-                account. We also need an OPENAI_API_KEY to use OpenAI's text
-                embedding model and finally, a TWITCH_CHANNEL variable that
+                account. We also need an OPENAI_API_KEY to use OpenAI&apos;s
+                text embedding model and finally, a TWITCH_CHANNEL variable that
                 points to the channel you want to listen to for messages.
               </p>
               <p>
@@ -195,8 +195,8 @@ twitchClient.connect();
             />
             <p>
               Now, we are ready to recieve Twitch messages. When we get one from
-              Twitch's servers, we want to store it in Redis. We can do this by
-              using the on function on our Twitch client.
+              Twitch&apos;s servers, we want to store it in Redis. We can do
+              this by using the on function on our Twitch client.
             </p>
             <CodeBlock
               language="typescript"
@@ -285,8 +285,8 @@ async function processMessagesAndStore() {
             `}
             />
             <p>
-              Finally, we can use JavaScript's setInterval() function to run our
-              function every five seconds.
+              Finally, we can use JavaScript&apos;s setInterval() function to
+              run our function every five seconds.
             </p>
             <CodeBlock
               language="typescript"
@@ -308,8 +308,8 @@ process.on("SIGINT", async () => {
             `}
             />
             <p>
-              And that's it!. We now have a functioning Node.js script that can
-              listen to Twitch and process messages into our Qdrant cluster.
+              And that&apos;s it!. We now have a functioning Node.js script that
+              can listen to Twitch and process messages into our Qdrant cluster.
             </p>
             <p>
               Stay tuned for the next post in this series, where we will build a
