@@ -159,6 +159,33 @@ export default function Home() {
           <h3 className="text-2xl font-bold mb-6">Blog Posts</h3>
           <div className="space-y-6">
             <a
+              href="/blog/upserting-twitch-live-chats-vector-db"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
+            >
+              <h4 className="text-xl font-bold mb-2">
+                Upserting Twitch Live Chat Messages Into a Vector Database
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Building a Node.js server that listens to Twitch live chat
+                messages and upserts them into a vector database.
+              </p>
+              <div className="flex gap-2">
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Qdrant
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Node.js
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Twitch API
+                </span>
+              </div>
+            </a>
+          </div>
+          <div className="space-y-6">
+            <a
               href="/blog/implementing-vector-search-qdrant-nextjs"
               target="_blank"
               rel="noopener noreferrer"
