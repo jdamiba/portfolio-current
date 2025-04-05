@@ -28,6 +28,37 @@ export default function Home() {
           <h3 className="text-2xl font-bold mb-6">Featured Projects</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <a
+              href="https://popcornai.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
+            >
+              <div className="relative w-full aspect-video mb-4">
+                <Image
+                  src="/images/popcorn.png"
+                  alt="PopcornAI - Movie Recommendation Engine"
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              </div>
+              <h4 className="text-xl font-bold mb-2">PopcornAI</h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Get movie recommendations based on your resume. Winner of the
+                2025 SampleApp.ai Hackathon.
+              </p>
+              <div className="flex gap-2">
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Next.js
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Qdrant
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Tailwind CSS
+                </span>
+              </div>
+            </a>
+            <a
               href="https://youtu.be/yGZ_L1uLa5g"
               target="_blank"
               rel="noopener noreferrer"
@@ -111,7 +142,8 @@ export default function Home() {
               </div>
               <h4 className="text-xl font-bold mb-2">Ives</h4>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                An AI powered project manager for your job search.
+                An AI powered project manager for your job search. Get matched
+                with jobs and generate a calendar for your side-projects.
               </p>
               <div className="flex gap-2">
                 <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
@@ -122,7 +154,6 @@ export default function Home() {
                 </span>
               </div>
             </a>
-
             <a
               href="https://io-plasma-torus.vercel.app/"
               target="_blank"
@@ -157,6 +188,36 @@ export default function Home() {
 
         <section className="mb-16">
           <h3 className="text-2xl font-bold mb-6">Blog Posts</h3>
+          <div className="space-y-6">
+            <a
+              href="/blog/music-recommendations-pt1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all hover:border-gray-400 dark:hover:border-gray-600 hover:shadow-lg"
+            >
+              <h4 className="text-xl font-bold mb-2">
+                Building a Music Recommendation System Pt. 1
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Let's build an application that can visit Pitchfork and get
+                music reviews.
+              </p>
+              <div className="flex gap-2">
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Qdrant
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Node.js
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  Browserbase
+                </span>
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                  StageHand
+                </span>
+              </div>
+            </a>
+          </div>
           <div className="space-y-6">
             <a
               href="/blog/upserting-twitch-live-chats-vector-db"
