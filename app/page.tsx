@@ -199,7 +199,7 @@ export default function Home() {
                 Building a Music Recommendation System Pt. 1
               </h4>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Let's build an application that can visit Pitchfork and get
+                Let&apos;s build an application that can visit Pitchfork and get
                 music reviews.
               </p>
               <div className="flex gap-2">

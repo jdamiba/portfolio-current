@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import CodeBlock from "@/app/components/CodeBlock";
 
 export default function BlogPost() {
   return (
