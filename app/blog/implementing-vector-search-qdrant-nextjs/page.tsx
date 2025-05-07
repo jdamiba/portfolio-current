@@ -5,7 +5,7 @@ import CodeBlock from "@/app/components/CodeBlock";
 
 export default function BlogPost() {
   return (
-    <div className="min-h-screen p-8 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="min-h-screen p-8 sm:p-20">
       <main className="max-w-3xl mx-auto">
         <nav className="mb-16">
           <Link
