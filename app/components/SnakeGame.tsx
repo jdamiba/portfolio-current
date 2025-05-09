@@ -199,26 +199,6 @@ const TETROMINOES = [
   ],
 ];
 
-// Helper to get all forbidden positions for apple spawning
-function getForbiddenForApple({
-  snakes,
-  apples,
-  walls,
-  skipAppleIndex,
-}: {
-  snakes: number[][][];
-  apples: number[][];
-  walls: number[][];
-  skipAppleIndex?: number;
-}) {
-  const forbidden = [
-    ...snakes.flat(),
-    ...walls,
-    ...apples.filter((_, i) => i !== skipAppleIndex),
-  ];
-  return forbidden;
-}
-
 // Each wall is now a tetromino: { shapeIndex, x, y, color }
 type TetrominoWall = {
   shapeIndex: number;
@@ -242,15 +222,17 @@ function generateTetrominoWall(
   gridSize: number,
   existingWalls: TetrominoWall[]
 ): TetrominoWall | null {
-  // Try up to 10 times to find a non-overlapping spawn
-  for (let attempt = 0; attempt < 10; attempt++) {
+  // Try up to 20 times to find a non-overlapping spawn
+  for (let attempt = 0; attempt < 20; attempt++) {
     const shapeIndex = Math.floor(Math.random() * TETROMINOES.length);
     const shape = TETROMINOES[shapeIndex];
     const maxX = Math.max(...shape.map(([x]) => x));
     const minX = Math.min(...shape.map(([x]) => x));
-    // Only allow x so that all blocks are within [0, gridSize-1]
+    const maxY = Math.max(...shape.map(([, y]) => y));
+    const minY = Math.min(...shape.map(([, y]) => y));
+    // Allow x and y so that all blocks are within [0, gridSize-1]
     const x = Math.floor(Math.random() * (gridSize - maxX + minX));
-    const y = 0;
+    const y = Math.floor(Math.random() * (gridSize - maxY + minY));
     const color = TETROMINO_COLORS[shapeIndex % TETROMINO_COLORS.length];
     // Check for overlap with existing walls and border
     const newCoords = shape.map(([dx, dy]) => [x + dx, y + dy]);
@@ -310,14 +292,19 @@ export function SnakeGame() {
 
   // Wall state
   const [walls, setWalls] = useState<TetrominoWall[]>([]);
-  // Track time for falling walls
-  const [wallTick, setWallTick] = useState(0);
 
   // Add mode state for cell click action
   const [spawnMode, setSpawnMode] = useState<"snake" | "apple">("snake");
 
   // Track which snakes are fading out
   const [fadingSnakes, setFadingSnakes] = useState<number[]>([]);
+
+  // Autoplay toggle state
+  const [autoplay, setAutoplay] = useState(true);
+  // Manual direction state (for manual mode)
+  const [manualDir, setManualDir] = useState<[number, number]>([1, 0]);
+  // Track last touch/click position for mobile
+  const lastTouchRef = useRef<{ x: number; y: number } | null>(null);
 
   // Countdown effect
   useEffect(() => {
@@ -337,45 +324,12 @@ export function SnakeGame() {
   // Only generate walls on mount and on reset
   useEffect(() => {
     const initialWalls: TetrominoWall[] = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 8; i++) {
       const wall = generateTetrominoWall(gridSize, initialWalls);
       if (wall) initialWalls.push(wall);
     }
     setWalls(initialWalls);
   }, []);
-
-  // Falling wall effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setWalls((prevWalls) => {
-        // Move all tetrominoes down by 1 (no rotation)
-        return prevWalls
-          .map((wall) => ({
-            ...wall,
-            y: wall.y + 1,
-          }))
-          .filter((wall) => {
-            // Remove if any block is out of bounds (bottom)
-            const shape = TETROMINOES[wall.shapeIndex];
-            return shape.every(([, dy]) => wall.y + dy < gridSize);
-          });
-      });
-      setWallTick((tick) => tick + 1);
-    }, 1200);
-    return () => clearInterval(interval);
-  }, [gridSize]);
-
-  // Spawn new tetromino at the top every N ticks
-  useEffect(() => {
-    if (wallTick === 0) return;
-    if (wallTick % 4 === 0) {
-      setWalls((prevWalls) => {
-        const newWall = generateTetrominoWall(gridSize, prevWalls);
-        if (!newWall) return prevWalls; // skip if overlap
-        return [...prevWalls, newWall];
-      });
-    }
-  }, [wallTick, gridSize]);
 
   function isCellOccupied(x: number, y: number) {
     for (const state of gameStates) {
@@ -533,8 +487,51 @@ export function SnakeGame() {
     }
   }
 
+  // Keyboard controls for manual mode
   useEffect(() => {
-    if (showCountdown) return; // Pause game logic during countdown
+    if (!autoplay && !showCountdown) {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        let dir: [number, number] | null = null;
+        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W")
+          dir = [0, -1];
+        if (e.key === "ArrowDown" || e.key === "s" || e.key === "S")
+          dir = [0, 1];
+        if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A")
+          dir = [-1, 0];
+        if (e.key === "ArrowRight" || e.key === "d" || e.key === "D")
+          dir = [1, 0];
+        if (dir) setManualDir(dir);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [autoplay, showCountdown]);
+
+  // Touch/click controls for manual mode (mobile)
+  function handleGridPointerDown(e: React.PointerEvent) {
+    if (autoplay || showCountdown) return;
+    const rect = (e.target as SVGElement).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    lastTouchRef.current = { x, y };
+  }
+  function handleGridPointerUp(e: React.PointerEvent) {
+    if (autoplay || showCountdown || !lastTouchRef.current) return;
+    const rect = (e.target as SVGElement).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const dx = x - lastTouchRef.current.x;
+    const dy = y - lastTouchRef.current.y;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      setManualDir(dx > 0 ? [1, 0] : [-1, 0]);
+    } else if (Math.abs(dy) > 0) {
+      setManualDir(dy > 0 ? [0, 1] : [0, -1]);
+    }
+    lastTouchRef.current = null;
+  }
+
+  useEffect(() => {
+    if (showCountdown) return;
     let isMounted = true;
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
@@ -559,13 +556,23 @@ export function SnakeGame() {
               nearestApple = a;
             }
           }
-          const nextDir = getNextDirection(
-            snake,
-            nearestApple,
-            dir,
-            allSnakes,
-            walls.flatMap((wall) => TETROMINOES[wall.shapeIndex])
-          );
+          let nextDir = dir;
+          if (autoplay) {
+            nextDir = getNextDirection(
+              snake,
+              nearestApple,
+              dir,
+              allSnakes,
+              walls.flatMap((wall) => TETROMINOES[wall.shapeIndex])
+            );
+          } else {
+            // Manual mode: use manualDir, but don't allow reverse
+            const [dx, dy] = manualDir;
+            const [cdx, cdy] = dir;
+            if (dx !== -cdx || dy !== -cdy) {
+              nextDir = manualDir;
+            }
+          }
           const [dx, dy] = nextDir;
           const [x, y] = [snake[0][0] + dx, snake[0][1] + dy];
           return { idx, pos: [x, y], nextDir };
@@ -625,7 +632,7 @@ export function SnakeGame() {
               const forbidden = getForbiddenForApple({
                 snakes: states.map((s) => s.snake),
                 apples: newApples,
-                walls: walls.flatMap((wall) => TETROMINOES[wall.shapeIndex]),
+                walls: walls,
                 skipAppleIndex: i,
               });
               let newApple: number[] = [-1, -1];
@@ -642,14 +649,7 @@ export function SnakeGame() {
                 tries < 100
               );
               // Only set if valid
-              if (
-                newApple[0] !== -1 &&
-                !walls.some((wall) =>
-                  TETROMINOES[wall.shapeIndex].some(
-                    ([dx, dy]) => dx === newApple[0] && dy === newApple[1]
-                  )
-                )
-              ) {
+              if (newApple[0] !== -1) {
                 newApples[i] = newApple;
               } else {
                 newApples[i] = [-1, -1];
@@ -677,14 +677,22 @@ export function SnakeGame() {
       isMounted = false;
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [sliderValue, numSnakes, gridSize, showCountdown, walls]);
+  }, [
+    sliderValue,
+    numSnakes,
+    gridSize,
+    showCountdown,
+    walls,
+    autoplay,
+    manualDir,
+  ]);
 
   const resetGame = useCallback(() => {
     setShowCountdown(true);
     setCountdown(3);
     // Regenerate walls on reset
     const initialWalls: TetrominoWall[] = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 8; i++) {
       const wall = generateTetrominoWall(gridSize, initialWalls);
       if (wall) initialWalls.push(wall);
     }
@@ -758,7 +766,7 @@ export function SnakeGame() {
               const forbidden = getForbiddenForApple({
                 snakes: [state.snake],
                 apples,
-                walls: walls.flatMap((wall) => TETROMINOES[wall.shapeIndex]),
+                walls: walls,
                 skipAppleIndex: i,
               });
               let newApple: number[] = [-1, -1];
@@ -775,14 +783,7 @@ export function SnakeGame() {
                 tries < 100
               );
               // Only set if valid
-              if (
-                newApple[0] !== -1 &&
-                !walls.some((wall) =>
-                  TETROMINOES[wall.shapeIndex].some(
-                    ([dx, dy]) => dx === newApple[0] && dy === newApple[1]
-                  )
-                )
-              ) {
+              if (newApple[0] !== -1) {
                 apples[i] = newApple;
               } else {
                 apples[i] = [-1, -1];
@@ -865,7 +866,19 @@ export function SnakeGame() {
   return (
     <div className="flex flex-col items-center w-full">
       <div className="mb-4 flex gap-2 items-center">
-        <label htmlFor="spawn-mode" className="font-medium">
+        <label htmlFor="autoplay-toggle" className="font-medium">
+          Mode:
+        </label>
+        <select
+          id="autoplay-toggle"
+          value={autoplay ? "autoplay" : "manual"}
+          onChange={(e) => setAutoplay(e.target.value === "autoplay")}
+          className="border rounded px-2 py-1 text-base text-black"
+        >
+          <option value="autoplay">Autoplay</option>
+          <option value="manual">Manual</option>
+        </select>
+        <label htmlFor="spawn-mode" className="font-medium ml-4">
           Click mode:
         </label>
         <select
@@ -887,6 +900,8 @@ export function SnakeGame() {
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full mx-auto md:mx-0"
           preserveAspectRatio="xMidYMid meet"
+          onPointerDown={handleGridPointerDown}
+          onPointerUp={handleGridPointerUp}
         >
           <defs>
             {/* Snake body gradient */}
@@ -1030,4 +1045,27 @@ export function SnakeGame() {
       `}</style>
     </div>
   );
+}
+
+function getForbiddenForApple({
+  snakes,
+  apples,
+  walls,
+  skipAppleIndex,
+}: {
+  snakes: number[][][];
+  apples: number[][];
+  walls: TetrominoWall[];
+  skipAppleIndex?: number;
+}) {
+  // Expand all wall tetrominoes into their occupied cells
+  const wallCells = walls.flatMap((wall) =>
+    TETROMINOES[wall.shapeIndex].map(([dx, dy]) => [wall.x + dx, wall.y + dy])
+  );
+  const forbidden = [
+    ...snakes.flat(),
+    ...wallCells,
+    ...apples.filter((_, i) => i !== skipAppleIndex),
+  ];
+  return forbidden;
 }
