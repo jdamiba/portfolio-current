@@ -89,6 +89,13 @@ export default function Home() {
       link: "/blog/introducing-ives",
       tags: ["AI", "JavaScript", "Tutorial"],
     },
+    {
+      title: "Challenges of Making a Modern Snake Game in React & Next.js",
+      description:
+        "Lessons learned and real-world debugging stories from building a feature-rich Snake game with React, Next.js, and TypeScript.",
+      link: "/blog/challenges-of-making-a-snake-game",
+      tags: ["React", "Next.js", "Game Dev", "TypeScript"],
+    },
   ];
 
   const experiences = [

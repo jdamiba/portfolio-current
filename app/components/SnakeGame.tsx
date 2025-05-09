@@ -1,310 +1,99 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
+import { Direction } from "./SnakeGame/types";
+import { getRandomApple, getNextDirection } from "./SnakeGame/snakeLogic";
+import { SnakeBoard } from "./SnakeGame/SnakeBoard";
+import {
+  getAliveCells,
+  nextLifeGrid,
+  placeGliderColored,
+  placeLWSSColored,
+  createRandomPatternGrid,
+} from "./SnakeGame/gameOfLife";
+import {
+  getHighContrastColor,
+  getRandomPatternColor,
+} from "./SnakeGame/colorUtils";
+import { SnakeControls } from "./SnakeGame/SnakeControls";
+import { useSnakeGame } from "./SnakeGame/useSnakeGame";
+import {
+  createHandleCellClick,
+  createHandleGridPointerDown,
+  createHandleGridPointerUp,
+} from "./SnakeGame/SnakeHandlers";
 
-function getRandomApple(
-  forbidden: number[][], // all forbidden positions (snake bodies, apples, just-eaten apple)
-  gridSize: number
-): number[] {
-  const forbiddenSet = new Set(forbidden.map(([x, y]) => `${x},${y}`));
-  const available: [number, number][] = [];
-  for (let x = 0; x < gridSize; x++) {
-    for (let y = 0; y < gridSize; y++) {
-      if (!forbiddenSet.has(`${x},${y}`)) available.push([x, y]);
-    }
-  }
-  if (available.length === 0) return [-1, -1];
-  return available[Math.floor(Math.random() * available.length)];
-}
-
-function getNextDirection(
-  snake: number[][],
-  apple: number[],
-  currentDir: number[],
-  allSnakes: number[][][],
-  walls: number[][]
-): number[] {
-  const head = snake[0];
-  const [ax, ay] = apple;
-  const [hx, hy] = head;
-  const possibleDirs = [
-    [1, 0], // right
-    [0, 1], // down
-    [-1, 0], // left
-    [0, -1], // up
-  ];
-  // Don't reverse
-  const [dx, dy] = currentDir;
-  const reverse = [-dx, -dy];
-  // Filter out reverse direction
-  const dirs = possibleDirs.filter(
-    ([x, y]) => x !== reverse[0] || y !== reverse[1]
-  );
-
-  // Build forbidden set: all snakes' bodies except the current head, plus walls
-  const forbidden = new Set<string>();
-  for (const s of allSnakes) {
-    for (const [i, [sx, sy]] of s.entries()) {
-      // Allow the current snake's head to move
-      if (s === snake && i === 0) continue;
-      forbidden.add(`${sx},${sy}`);
-    }
-  }
-  for (const [wx, wy] of walls) {
-    forbidden.add(`${wx},${wy}`);
-  }
-
-  // --- A* Pathfinding ---
-  const gridSize = 24;
-  function neighbors([x, y]: number[]): number[][] {
-    return possibleDirs
-      .map(([dx, dy]) => [x + dx, y + dy])
-      .filter(
-        ([nx, ny]) =>
-          nx >= 0 &&
-          nx < gridSize &&
-          ny >= 0 &&
-          ny < gridSize &&
-          !forbidden.has(`${nx},${ny}`)
-      );
-  }
-  function heuristic([x, y]: number[]): number {
-    return Math.abs(ax - x) + Math.abs(ay - y);
-  }
-  const start = head;
-  const goal = apple;
-  const openSet = [start];
-  const cameFrom = new Map<string, string>();
-  const gScore = new Map<string, number>();
-  const fScore = new Map<string, number>();
-  gScore.set(`${start[0]},${start[1]}`, 0);
-  fScore.set(`${start[0]},${start[1]}`, heuristic(start));
-  while (openSet.length > 0) {
-    // Get node in openSet with lowest fScore
-    let currentIdx = 0;
-    let minF = fScore.get(`${openSet[0][0]},${openSet[0][1]}`) ?? Infinity;
-    for (let i = 1; i < openSet.length; i++) {
-      const f = fScore.get(`${openSet[i][0]},${openSet[i][1]}`) ?? Infinity;
-      if (f < minF) {
-        minF = f;
-        currentIdx = i;
-      }
-    }
-    const current = openSet.splice(currentIdx, 1)[0];
-    if (current[0] === goal[0] && current[1] === goal[1]) {
-      // Reconstruct path
-      const path = [`${current[0]},${current[1]}`];
-      while (cameFrom.has(path[0])) {
-        path.unshift(cameFrom.get(path[0])!);
-      }
-      // The first move is from head to path[1]
-      if (path.length > 1) {
-        const [nx, ny] = path[1].split(",").map(Number);
-        return [nx - head[0], ny - head[1]];
-      }
-    }
-    for (const neighbor of neighbors(current)) {
-      const key = `${neighbor[0]},${neighbor[1]}`;
-      const tentativeG =
-        (gScore.get(`${current[0]},${current[1]}`) ?? Infinity) + 1;
-      if (tentativeG < (gScore.get(key) ?? Infinity)) {
-        cameFrom.set(key, `${current[0]},${current[1]}`);
-        gScore.set(key, tentativeG);
-        fScore.set(key, tentativeG + heuristic(neighbor));
-        if (!openSet.some(([x, y]) => x === neighbor[0] && y === neighbor[1])) {
-          openSet.push(neighbor);
-        }
-      }
-    }
-  }
-  // --- End A* ---
-
-  // If no path found, fallback to old logic
-  const safeDirs = dirs.filter(([mx, my]) => {
-    const [nx, ny] = [hx + mx, hy + my];
-    if (nx < 0 || nx >= gridSize || ny < 0 || ny >= gridSize) return false;
-    return !forbidden.has(`${nx},${ny}`);
-  });
-  if (safeDirs.length > 0) {
-    let minDist = Infinity;
-    let bestDirs: number[][] = [];
-    for (const dir of safeDirs) {
-      const [mx, my] = dir;
-      const [nx, ny] = [hx + mx, hy + my];
-      const dist = Math.abs(ax - nx) + Math.abs(ay - ny);
-      if (dist < minDist) {
-        minDist = dist;
-        bestDirs = [dir];
-      } else if (dist === minDist) {
-        bestDirs.push(dir);
-      }
-    }
-    // Pick randomly among bestDirs
-    return bestDirs[Math.floor(Math.random() * bestDirs.length)];
-  }
-  // If no safe moves, keep going in the current direction
-  return currentDir;
-}
-
-// Tetromino shapes (relative coordinates)
-const TETROMINOES = [
-  // I
-  [
-    [0, 0],
-    [1, 0],
-    [2, 0],
-    [3, 0],
-  ],
-  // O
-  [
-    [0, 0],
-    [1, 0],
-    [0, 1],
-    [1, 1],
-  ],
-  // T
-  [
-    [0, 0],
-    [1, 0],
-    [2, 0],
-    [1, 1],
-  ],
-  // S
-  [
-    [1, 0],
-    [2, 0],
-    [0, 1],
-    [1, 1],
-  ],
-  // Z
-  [
-    [0, 0],
-    [1, 0],
-    [1, 1],
-    [2, 1],
-  ],
-  // J
-  [
-    [0, 0],
-    [0, 1],
-    [1, 1],
-    [2, 1],
-  ],
-  // L
-  [
-    [2, 0],
-    [0, 1],
-    [1, 1],
-    [2, 1],
-  ],
-];
-
-// Each wall is now a tetromino: { shapeIndex, x, y, color }
-type TetrominoWall = {
-  shapeIndex: number;
-  x: number;
-  y: number;
-  color: string;
-};
-
-const TETROMINO_COLORS = [
-  "#e34c26", // I
-  "#f7df1e", // O
-  "#264de4", // T
-  "#68a063", // S
-  "#336791", // Z
-  "#61dafb", // J
-  "#ff9800", // L
-];
-
-// Helper to generate a tetromino at the top (no rotation)
-function generateTetrominoWall(
-  gridSize: number,
-  existingWalls: TetrominoWall[]
-): TetrominoWall | null {
-  // Try up to 20 times to find a non-overlapping spawn
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const shapeIndex = Math.floor(Math.random() * TETROMINOES.length);
-    const shape = TETROMINOES[shapeIndex];
-    const maxX = Math.max(...shape.map(([x]) => x));
-    const minX = Math.min(...shape.map(([x]) => x));
-    const maxY = Math.max(...shape.map(([, y]) => y));
-    const minY = Math.min(...shape.map(([, y]) => y));
-    // Allow x and y so that all blocks are within [0, gridSize-1]
-    const x = Math.floor(Math.random() * (gridSize - maxX + minX));
-    const y = Math.floor(Math.random() * (gridSize - maxY + minY));
-    const color = TETROMINO_COLORS[shapeIndex % TETROMINO_COLORS.length];
-    // Check for overlap with existing walls and border
-    const newCoords = shape.map(([dx, dy]) => [x + dx, y + dy]);
-    // Ensure all blocks are within grid
-    if (
-      newCoords.some(
-        ([nx, ny]) => nx < 0 || nx >= gridSize || ny < 0 || ny >= gridSize
-      )
-    )
-      continue;
-    const allExistingCoords = existingWalls.flatMap((wall) =>
-      TETROMINOES[wall.shapeIndex].map(([dx, dy]) => [wall.x + dx, wall.y + dy])
-    );
-    if (
-      !newCoords.some(([nx, ny]) =>
-        allExistingCoords.some(([ex, ey]) => ex === nx && ey === ny)
-      )
-    ) {
-      return { shapeIndex, x, y, color };
-    }
-  }
-  return null; // Could not find a non-overlapping spawn
-}
+const BACKGROUND_COLOR = "#f3f4f6";
 
 export function SnakeGame() {
-  const gridSize = 24;
-  const containerPx = 500;
-  const cellSize = Math.floor(containerPx / gridSize);
+  const {
+    gridSize,
+    cellSize,
+    snakes,
+    setSnakes,
+    appleGrid,
+    setAppleGrid,
+    apples,
+    autoplay,
+    setAutoplay,
+    manualDir,
+    setManualDir,
+    spawnMode,
+    setSpawnMode,
+    fadingSnakes,
+    setFadingSnakes,
+    showCountdown,
+    setShowCountdown,
+    countdown,
+    setCountdown,
+    intervalRef,
+    lastTouchRef,
+    applesEatenRef,
+    snakesRef,
+    sliderValue,
+  } = useSnakeGame();
 
-  const [sliderValue] = useState(450); // left = slowest, fixed
-  const [numSnakes] = useState(1); // fixed to 3 snakes
+  const [longestSnakeLength, setLongestSnakeLength] = useState(0);
+  const [hasMounted, setHasMounted] = useState(false);
 
-  // Countdown state
-  const [countdown, setCountdown] = useState(3);
-  const [showCountdown, setShowCountdown] = useState(true);
+  // On mount, load from localStorage
+  useEffect(() => {
+    setHasMounted(true);
+    try {
+      const stored = localStorage.getItem("longestSnakeLength");
+      if (stored) setLongestSnakeLength(Number(stored));
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
-  // Each snake has its own state
-  const [gameStates, setGameStates] = useState(() =>
-    Array.from({ length: numSnakes }, (_, i) => {
-      const snake = Array.from({ length: 5 }, (_, j) => [
-        Math.floor(gridSize / 2) - j + i,
-        Math.floor(gridSize / 2),
-      ]);
-      return {
-        snake,
-        apples: Array.from({ length: 5 }, () => [-1, -1]),
-        dir: [1, 0],
-        isFirstApple: true,
-        alive: true,
-      };
-    })
-  );
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const ateAppleRefs = useRef<boolean[]>(Array(numSnakes).fill(false));
-  const [gameOver, setGameOver] = useState(false);
-  const [resetCount, setResetCount] = useState(0);
-
-  // Wall state
-  const [walls, setWalls] = useState<TetrominoWall[]>([]);
-
-  // Add mode state for cell click action
-  const [spawnMode, setSpawnMode] = useState<"snake" | "apple">("snake");
-
-  // Track which snakes are fading out
-  const [fadingSnakes, setFadingSnakes] = useState<number[]>([]);
-
-  // Autoplay toggle state
-  const [autoplay, setAutoplay] = useState(true);
-  // Manual direction state (for manual mode)
-  const [manualDir, setManualDir] = useState<[number, number]>([1, 0]);
-  // Track last touch/click position for mobile
-  const lastTouchRef = useRef<{ x: number; y: number } | null>(null);
+  // Reset handler
+  const handleReset = () => {
+    setSnakes([
+      (() => {
+        const bodyColor = getHighContrastColor([BACKGROUND_COLOR], 120);
+        const headColor = getHighContrastColor(
+          [BACKGROUND_COLOR, bodyColor],
+          120
+        );
+        return {
+          body: Array.from(
+            { length: 5 },
+            (_, j) =>
+              [Math.floor(gridSize / 2) - j, Math.floor(gridSize / 2)] as [
+                number,
+                number
+              ]
+          ),
+          dir: [1, 0] as Direction,
+          alive: true,
+          bodyColor,
+          headColor,
+        };
+      })(),
+    ]);
+    setAppleGrid(() => createRandomPatternGrid(gridSize, 7, 3, 2, 2, 1));
+  };
 
   // Countdown effect
   useEffect(() => {
@@ -314,689 +103,293 @@ export function SnakeGame() {
       setCountdown((c) => {
         if (c > 1) return c - 1;
         clearInterval(timer);
-        setTimeout(() => setShowCountdown(false), 700); // show "Go!" for a bit
+        setTimeout(() => setShowCountdown(false), 700);
         return 0;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [resetCount, showCountdown]);
+  }, [setCountdown, setShowCountdown, showCountdown]);
 
-  // Only generate walls on mount and on reset
-  useEffect(() => {
-    const initialWalls: TetrominoWall[] = [];
-    for (let i = 0; i < 8; i++) {
-      const wall = generateTetrominoWall(gridSize, initialWalls);
-      if (wall) initialWalls.push(wall);
-    }
-    setWalls(initialWalls);
-  }, []);
-
-  function isCellOccupied(x: number, y: number) {
-    for (const state of gameStates) {
-      for (const [sx, sy] of state.snake) {
-        if (sx === x && sy === y) return true;
-      }
-      for (const [ax, ay] of state.apples) {
-        if (ax === x && ay === y) return true;
-      }
-    }
-    for (const wall of walls) {
-      const coords = TETROMINOES[wall.shapeIndex];
-      if (coords.some(([dx, dy]) => x === wall.x + dx && y === wall.y + dy)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function handleCellClick(x: number, y: number) {
-    if (spawnMode === "snake") {
-      setGameStates((prev) => {
-        // Build the intended new snake body
-        const body: number[][] = [[x, y]];
-        if (
-          x > 0 &&
-          !prev.some(
-            (state) =>
-              state.snake.some(([sx, sy]) => sx === x - 1 && sy === y) ||
-              state.apples.some(([ax, ay]) => ax === x - 1 && ay === y)
-          )
-        ) {
-          body.push([x - 1, y]);
-        }
-        // Check against the latest state for any overlap
-        const occupied = new Set<string>();
-        for (const state of prev) {
-          for (const [sx, sy] of state.snake) {
-            occupied.add(`${sx},${sy}`);
-          }
-          for (const [ax, ay] of state.apples) {
-            occupied.add(`${ax},${ay}`);
-          }
-        }
-        if (body.some(([bx, by]) => occupied.has(`${bx},${by}`))) {
-          return prev; // Do not spawn if any segment is occupied
-        }
-        setResetCount((c) => c + 1);
-        // Spawn apples immediately in valid positions
-        const apples: number[][] = [];
-        for (let i = 0; i < 5; i++) {
-          let tries = 0;
-          let apple: number[] = [-1, -1];
-          do {
-            // Don't allow apples to spawn on any snake or wall
-            const forbidden = [
-              ...body,
-              ...prev.flatMap((state) => state.snake),
-              ...prev.flatMap((state) => state.apples),
-              ...walls.flatMap((wall) =>
-                TETROMINOES[wall.shapeIndex].map(([dx, dy]) => [
-                  wall.x + dx,
-                  wall.y + dy,
-                ])
-              ),
-            ];
-            apple = getRandomApple(forbidden, gridSize);
-            tries++;
-          } while (
-            (apple[0] === -1 ||
-              apples.some(([ax, ay]) => ax === apple[0] && ay === apple[1])) &&
-            tries < 100
-          );
-          apples.push(apple);
-        }
-        return [
-          ...prev,
-          {
-            snake: body,
-            apples,
-            dir: [1, 0],
-            isFirstApple: false,
-            alive: true,
-          },
-        ];
-      });
-    } else if (spawnMode === "apple") {
-      setGameStates((prev) => {
-        // Only add an apple if the cell is not occupied
-        const occupied = new Set<string>();
-        for (const state of prev) {
-          for (const [sx, sy] of state.snake) {
-            occupied.add(`${sx},${sy}`);
-          }
-          for (const [ax, ay] of state.apples) {
-            occupied.add(`${ax},${ay}`);
-          }
-        }
-        for (const wall of walls) {
-          const coords = TETROMINOES[wall.shapeIndex];
-          if (
-            coords.some(([dx, dy]) => x === wall.x + dx && y === wall.y + dy)
-          ) {
-            return prev;
-          }
-        }
-        if (occupied.has(`${x},${y}`)) {
-          return prev;
-        }
-        // Add the apple to the first snake's apples array (or create a new snake if none)
-        const newStates = prev.length > 0 ? [...prev] : [];
-        if (newStates.length === 0) {
-          // If no snake exists, spawn a new snake and apples together
-          const body: number[][] = [[x, y]];
-          // Try to spawn apples in valid positions
-          const apples: number[][] = [];
-          for (let i = 0; i < 5; i++) {
-            let tries = 0;
-            let apple: number[] = [-1, -1];
-            do {
-              const forbidden = [
-                ...body,
-                ...apples,
-                ...walls.flatMap((wall) =>
-                  TETROMINOES[wall.shapeIndex].map(([dx, dy]) => [
-                    wall.x + dx,
-                    wall.y + dy,
-                  ])
-                ),
-              ];
-              apple = getRandomApple(forbidden, gridSize);
-              tries++;
-            } while (
-              (apple[0] === -1 ||
-                apples.some(
-                  ([ax, ay]) => ax === apple[0] && ay === apple[1]
-                )) &&
-              tries < 100
-            );
-            apples.push(apple);
-          }
-          newStates.push({
-            snake: body,
-            apples,
-            dir: [1, 0],
-            isFirstApple: false,
-            alive: true,
-          });
-        } else {
-          // Add the apple to the first snake's apples array
-          newStates[0].apples = [...newStates[0].apples, [x, y]];
-        }
-        return newStates;
-      });
-    }
-  }
-
-  // Keyboard controls for manual mode
-  useEffect(() => {
-    if (!autoplay && !showCountdown) {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        let dir: [number, number] | null = null;
-        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W")
-          dir = [0, -1];
-        if (e.key === "ArrowDown" || e.key === "s" || e.key === "S")
-          dir = [0, 1];
-        if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A")
-          dir = [-1, 0];
-        if (e.key === "ArrowRight" || e.key === "d" || e.key === "D")
-          dir = [1, 0];
-        if (dir) setManualDir(dir);
-      };
-      window.addEventListener("keydown", handleKeyDown);
-      return () => window.removeEventListener("keydown", handleKeyDown);
-    }
-  }, [autoplay, showCountdown]);
-
-  // Touch/click controls for manual mode (mobile)
-  function handleGridPointerDown(e: React.PointerEvent) {
-    if (autoplay || showCountdown) return;
-    const rect = (e.target as SVGElement).getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    lastTouchRef.current = { x, y };
-  }
-  function handleGridPointerUp(e: React.PointerEvent) {
-    if (autoplay || showCountdown || !lastTouchRef.current) return;
-    const rect = (e.target as SVGElement).getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const dx = x - lastTouchRef.current.x;
-    const dy = y - lastTouchRef.current.y;
-    if (Math.abs(dx) > Math.abs(dy)) {
-      setManualDir(dx > 0 ? [1, 0] : [-1, 0]);
-    } else if (Math.abs(dy) > 0) {
-      setManualDir(dy > 0 ? [0, 1] : [0, -1]);
-    }
-    lastTouchRef.current = null;
-  }
-
+  // Main game loop (now also updates Game of Life)
   useEffect(() => {
     if (showCountdown) return;
-    let isMounted = true;
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
-      if (!isMounted) return;
-      const shouldGameOver = false;
-      setGameStates((states) => {
-        // 1. Compute all new head positions and next directions
-        const allSnakes = states.map((s) => s.snake);
-        const newHeads = states.map((state, idx) => {
-          if (!state.alive) return null;
-          const { snake, dir } = state;
-          // Find the nearest apple to this snake's head
-          const head = snake[0];
-          let nearestApple = state.apples[0];
+      setSnakes((prevSnakes) => {
+        let newSnakes = [...prevSnakes];
+        let changed = false;
+        const eaten: [number, number][] = [];
+        for (let sIdx = 0; sIdx < newSnakes.length; sIdx++) {
+          const snake = newSnakes[sIdx];
+          if (!snake.alive) continue;
+          const head = snake.body[0];
+          let nearestApple = apples[0];
           let minDist =
             Math.abs(head[0] - nearestApple[0]) +
             Math.abs(head[1] - nearestApple[1]);
-          for (const a of state.apples) {
+          for (const a of apples) {
             const dist = Math.abs(head[0] - a[0]) + Math.abs(head[1] - a[1]);
             if (dist < minDist) {
               minDist = dist;
               nearestApple = a;
             }
           }
-          let nextDir = dir;
+          const nearestAppleXY: [number, number] = [
+            nearestApple[0],
+            nearestApple[1],
+          ];
+          let nextDir = snake.dir;
           if (autoplay) {
             nextDir = getNextDirection(
-              snake,
-              nearestApple,
-              dir,
-              allSnakes,
-              walls.flatMap((wall) => TETROMINOES[wall.shapeIndex])
+              snake.body,
+              nearestAppleXY,
+              snake.dir,
+              newSnakes.map((s) => s.body),
+              [],
+              gridSize
             );
           } else {
-            // Manual mode: use manualDir, but don't allow reverse
             const [dx, dy] = manualDir;
-            const [cdx, cdy] = dir;
+            const [cdx, cdy] = snake.dir;
             if (dx !== -cdx || dy !== -cdy) {
               nextDir = manualDir;
             }
           }
           const [dx, dy] = nextDir;
-          const [x, y] = [snake[0][0] + dx, snake[0][1] + dy];
-          return { idx, pos: [x, y], nextDir };
-        });
-
-        // 2. Build a map of all new head positions
-        const headMap = new Map();
-        for (const h of newHeads) {
-          if (!h) continue;
-          const key = `${h.pos[0]},${h.pos[1]}`;
-          if (!headMap.has(key)) headMap.set(key, []);
-          headMap.get(key).push(h.idx);
-        }
-
-        // 3. Update each snake, checking for collisions
-        return states.map((state, idx) => {
-          if (!state.alive) return state;
-          const h = newHeads[idx];
-          if (!h) return state;
-          const [x, y] = h.pos;
-          // Out of bounds
+          const [x, y] = [head[0] + dx, head[1] + dy];
           if (x < 0 || x >= gridSize || y < 0 || y >= gridSize) {
-            return { ...state, alive: false };
+            newSnakes[sIdx] = { ...snake, alive: false };
+            changed = true;
+            continue;
           }
-          // Wall collision
-          if (
-            walls.some((wall) =>
-              TETROMINOES[wall.shapeIndex].some(
-                ([dx, dy]) => x === wall.x + dx && y === wall.y + dy
-              )
+          const bodyCollision = newSnakes.some((other, idx) =>
+            other.body.some(
+              ([sx, sy], i) => (idx !== sIdx || i !== 0) && sx === x && sy === y
             )
-          ) {
-            return { ...state, alive: false };
+          );
+          if (bodyCollision) {
+            newSnakes[sIdx] = { ...snake, alive: false };
+            changed = true;
+            continue;
           }
-          // Head-to-head collision
-          if (headMap.get(`${x},${y}`).length > 1) {
-            return { ...state, alive: false };
+          // Apple eating: only eat the cell the snake moves onto
+          let grew = false;
+          if (appleGrid[x] && appleGrid[x][y]) {
+            grew = true;
+            eaten.push([x, y]);
           }
-          // Head-to-body collision (including own body, excluding own head)
-          const allBodies = states
-            .flatMap((s, sidx) =>
-              s.snake.map(([sx, sy], i) =>
-                sidx === idx && i === 0 ? null : `${sx},${sy}`
-              )
-            )
-            .filter(Boolean);
-          if (allBodies.includes(`${x},${y}`)) {
-            return { ...state, alive: false };
-          }
-          // Apple eating and movement logic
-          let newSnake = [[x, y], ...state.snake];
-          const newApples = [...state.apples];
-          let ate = false;
-          for (let i = 0; i < newApples.length; i++) {
-            if (x === newApples[i][0] && y === newApples[i][1]) {
-              // Respawn only this apple
-              const forbidden = getForbiddenForApple({
-                snakes: states.map((s) => s.snake),
-                apples: newApples,
-                walls: walls,
-                skipAppleIndex: i,
-              });
-              let newApple: number[] = [-1, -1];
-              let tries = 0;
-              do {
-                newApple = getRandomApple(forbidden, gridSize);
-                tries++;
-              } while (
-                newApple[0] !== -1 &&
-                newApples.some(
-                  (a, j) =>
-                    j !== i && a[0] === newApple[0] && a[1] === newApple[1]
-                ) &&
-                tries < 100
+          let newBody = [[x, y], ...snake.body] as [number, number][];
+          if (!grew) newBody = newBody.slice(0, -1) as [number, number][];
+          newSnakes[sIdx] = { ...snake, body: newBody, dir: nextDir };
+        }
+        applesEatenRef.current = eaten;
+        if (changed) {
+          newSnakes = newSnakes.filter((s) => s.alive);
+          newSnakes.push(
+            (() => {
+              const bodyColor = getHighContrastColor([BACKGROUND_COLOR], 120);
+              const headColor = getHighContrastColor(
+                [BACKGROUND_COLOR, bodyColor],
+                120
               );
-              // Only set if valid
-              if (newApple[0] !== -1) {
-                newApples[i] = newApple;
-              } else {
-                newApples[i] = [-1, -1];
-              }
-              ate = true;
-              break;
+              return {
+                body: Array.from(
+                  { length: 5 },
+                  (_, j) =>
+                    [
+                      Math.floor(gridSize / 2) - j,
+                      Math.floor(gridSize / 2),
+                    ] as [number, number]
+                ),
+                dir: [1, 0] as Direction,
+                alive: true,
+                bodyColor,
+                headColor,
+              };
+            })()
+          );
+        }
+        // --- Game of Life update for apples ---
+        setAppleGrid((prevGrid) => {
+          // Remove apples eaten by the snake this tick
+          const nextGrid: (string | null)[][] = prevGrid.map((row) => [...row]);
+          for (const [ex, ey] of applesEatenRef.current) {
+            if (nextGrid[ex] && nextGrid[ex][ey]) {
+              nextGrid[ex][ey] = null;
             }
           }
-          if (!ate) {
-            newSnake = newSnake.slice(0, -1);
+          applesEatenRef.current = [];
+          const forbidden = new Set(
+            newSnakes.flatMap((s) => s.body.map(([x, y]) => `${x},${y}`))
+          );
+          const updated = nextLifeGrid(nextGrid, forbidden);
+          if (getAliveCells(updated).length === 0) {
+            return createRandomPatternGrid(gridSize, 7, 3, 2, 2, 1);
           }
-          return {
-            ...state,
-            snake: newSnake,
-            apples: newApples,
-            dir: h.nextDir,
-            isFirstApple: false,
-            alive: true,
-          };
+          return updated;
         });
+        // --- Longest snake logic ---
+        const maxLength = Math.max(...newSnakes.map((s) => s.body.length), 0);
+        if (maxLength > longestSnakeLength) {
+          setLongestSnakeLength(maxLength);
+          try {
+            localStorage.setItem("longestSnakeLength", String(maxLength));
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        return newSnakes;
       });
-      if (shouldGameOver) setGameOver(true);
     }, 550 - sliderValue);
     return () => {
-      isMounted = false;
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [
-    sliderValue,
-    numSnakes,
-    gridSize,
-    showCountdown,
-    walls,
     autoplay,
+    setAppleGrid,
     manualDir,
+    showCountdown,
+    apples,
+    sliderValue,
+    longestSnakeLength,
+    appleGrid,
+    intervalRef,
+    applesEatenRef,
+    gridSize,
+    setSnakes,
   ]);
 
-  const resetGame = useCallback(() => {
-    setShowCountdown(true);
-    setCountdown(3);
-    // Regenerate walls on reset
-    const initialWalls: TetrominoWall[] = [];
-    for (let i = 0; i < 8; i++) {
-      const wall = generateTetrominoWall(gridSize, initialWalls);
-      if (wall) initialWalls.push(wall);
-    }
-    setWalls(initialWalls);
-    setGameStates(
-      Array.from({ length: numSnakes }, (_, i) => {
-        const snake = Array.from({ length: 5 }, (_, j) => [
-          Math.floor(gridSize / 2) - j + i,
-          Math.floor(gridSize / 2),
-        ]);
-        return {
-          snake,
-          apples: Array.from({ length: 5 }, () => [-1, -1]),
-          dir: [1, 0],
-          isFirstApple: true,
-          alive: true,
-        };
-      })
-    );
-    ateAppleRefs.current = Array(numSnakes).fill(false);
-    setResetCount((c) => c + 1);
-  }, [gridSize, numSnakes]);
-
   useEffect(() => {
-    if (gameOver) {
-      resetGame();
-      setGameOver(false);
-    }
-  }, [gameOver, resetGame]);
+    snakesRef.current = snakes;
+  }, [snakesRef, snakes]);
 
-  useEffect(() => {
-    setGameStates((prevStates) => {
-      if (numSnakes > prevStates.length) {
-        const newSnakes = Array.from(
-          { length: numSnakes - prevStates.length },
-          (_, i) => {
-            const snake = Array.from({ length: 5 }, (_, j) => [
-              Math.floor(gridSize / 2) - j + prevStates.length + i,
-              Math.floor(gridSize / 2),
-            ]);
-            return {
-              snake,
-              apples: Array.from({ length: 5 }, () => [-1, -1]),
-              dir: [1, 0],
-              isFirstApple: true,
-              alive: true,
-            };
-          }
-        );
-        ateAppleRefs.current = [
-          ...ateAppleRefs.current,
-          ...Array(numSnakes - prevStates.length).fill(false),
-        ];
-        return [...prevStates, ...newSnakes];
-      } else if (numSnakes < prevStates.length) {
-        ateAppleRefs.current = ateAppleRefs.current.slice(0, numSnakes);
-        return prevStates.slice(0, numSnakes);
-      }
-      return prevStates;
-    });
-  }, [numSnakes]);
-
-  useEffect(() => {
-    setGameStates((prevStates) =>
-      prevStates.map((state) => {
-        if (state.apples.some(([ax, ay]) => ax === -1 && ay === -1)) {
-          // Spawn apples so there are always 5
-          const apples = [...state.apples];
-          for (let i = 0; i < apples.length; i++) {
-            if (apples[i][0] === -1 && apples[i][1] === -1) {
-              const forbidden = getForbiddenForApple({
-                snakes: [state.snake],
-                apples,
-                walls: walls,
-                skipAppleIndex: i,
-              });
-              let newApple: number[] = [-1, -1];
-              let tries = 0;
-              do {
-                newApple = getRandomApple(forbidden, gridSize);
-                tries++;
-              } while (
-                newApple[0] !== -1 &&
-                apples.some(
-                  (a, j) =>
-                    j !== i && a[0] === newApple[0] && a[1] === newApple[1]
-                ) &&
-                tries < 100
-              );
-              // Only set if valid
-              if (newApple[0] !== -1) {
-                apples[i] = newApple;
-              } else {
-                apples[i] = [-1, -1];
-              }
-            }
-          }
-          return {
-            ...state,
-            apples,
-            alive: state.alive,
-          };
-        }
-        return state;
-      })
-    );
-  }, [numSnakes, gridSize, resetCount, walls]);
+  const handleCellClick = createHandleCellClick({
+    snakes,
+    setSnakes,
+    spawnMode,
+    gridSize,
+    getRandomApple,
+    getHighContrastColor,
+    BACKGROUND_COLOR,
+  });
+  const handleGridPointerDown = createHandleGridPointerDown({
+    autoplay,
+    showCountdown,
+    lastTouchRef,
+  });
+  const handleGridPointerUp = createHandleGridPointerUp({
+    autoplay,
+    showCountdown,
+    lastTouchRef,
+    setManualDir,
+  });
 
   // When a snake dies, add its index to fadingSnakes
   useEffect(() => {
     setFadingSnakes((prev) => {
-      const dead = gameStates
-        .map((state, idx) => (!state.alive && !prev.includes(idx) ? idx : null))
+      const dead = snakes
+        .map((snake, idx) => (!snake.alive && !prev.includes(idx) ? idx : null))
         .filter((idx) => idx !== null) as number[];
       if (dead.length === 0) return prev;
       return [...prev, ...dead];
     });
-  }, [gameStates]);
+  }, [snakes, setFadingSnakes]);
 
   // Remove faded snakes after animation
   useEffect(() => {
     if (fadingSnakes.length === 0) return;
     const timeout = setTimeout(() => {
-      setGameStates((prev) =>
-        prev.filter((_, idx) => !fadingSnakes.includes(idx))
-      );
+      setSnakes((prev) => prev.filter((_, idx) => !fadingSnakes.includes(idx)));
       setFadingSnakes([]);
     }, 700); // match fade duration
     return () => clearTimeout(timeout);
-  }, [fadingSnakes]);
+  }, [setSnakes, setFadingSnakes, fadingSnakes]);
 
-  // If there are no snakes, spawn a new one automatically
   useEffect(() => {
-    if (gameStates.length === 0) {
-      setGameStates([
-        {
-          snake: Array.from({ length: 5 }, (_, j) => [
-            Math.floor(gridSize / 2) - j,
-            Math.floor(gridSize / 2),
-          ]),
-          apples: Array.from({ length: 5 }, () => [-1, -1]),
-          dir: [1, 0],
-          isFirstApple: true,
-          alive: true,
-        },
-      ]);
-    }
-  }, [gameStates.length, gridSize]);
+    const interval = setInterval(() => {
+      setAppleGrid((prevGrid) => {
+        // Randomly choose to spawn a glider or spaceship
+        const size = prevGrid.length;
+        const newGrid: (string | null)[][] = prevGrid.map((row) => [...row]);
+        const usedColors: string[] = [];
+        for (let x = 0; x < size; x++)
+          for (let y = 0; y < size; y++)
+            if (newGrid[x][y]) usedColors.push(newGrid[x][y] as string);
+        const spawnType = Math.random() < 0.5 ? "glider" : "lwss";
+        if (spawnType === "glider") {
+          const gliderSize = 3;
+          for (let attempt = 0; attempt < 100; attempt++) {
+            const x = Math.floor(Math.random() * (size - gliderSize + 1));
+            const y = Math.floor(Math.random() * (size - gliderSize + 1));
+            let overlap = false;
+            for (let dx = 0; dx < gliderSize; dx++) {
+              for (let dy = 0; dy < gliderSize; dy++) {
+                if (newGrid[x + dx][y + dy]) {
+                  overlap = true;
+                  break;
+                }
+              }
+              if (overlap) break;
+            }
+            if (!overlap) {
+              const color = getRandomPatternColor(usedColors);
+              placeGliderColored(newGrid, x, y, color);
+              return newGrid;
+            }
+          }
+        } else {
+          const lwssSize = [4, 5];
+          for (let attempt = 0; attempt < 100; attempt++) {
+            const x = Math.floor(Math.random() * (size - lwssSize[0] + 1));
+            const y = Math.floor(Math.random() * (size - lwssSize[1] + 1));
+            let overlap = false;
+            for (let dx = 0; dx < lwssSize[0]; dx++) {
+              for (let dy = 0; dy < lwssSize[1]; dy++) {
+                if (newGrid[x + dx][y + dy]) {
+                  overlap = true;
+                  break;
+                }
+              }
+              if (overlap) break;
+            }
+            if (!overlap) {
+              const color = getRandomPatternColor(usedColors);
+              placeLWSSColored(newGrid, x, y, color);
+              return newGrid;
+            }
+          }
+        }
+        return newGrid;
+      });
+    }, 2000); // every 7 seconds (adjust as desired)
+    return () => clearInterval(interval);
+  }, [setAppleGrid]);
 
-  const gridRects = [];
-  for (let x = 0; x < gridSize; x++) {
-    for (let y = 0; y < gridSize; y++) {
-      gridRects.push(
-        <rect
-          key={`cell-${x}-${y}`}
-          x={x * cellSize}
-          y={y * cellSize}
-          width={cellSize}
-          height={cellSize}
-          fill="#f3f4f6"
-          stroke="#22223b"
-          strokeWidth={1.1}
-          opacity={0.3}
-          onClick={() => handleCellClick(x, y)}
-          style={{ cursor: isCellOccupied(x, y) ? "not-allowed" : "pointer" }}
-        />
-      );
-    }
-  }
+  if (!hasMounted) return null;
 
   return (
     <div className="flex flex-col items-center w-full">
-      <div className="mb-4 flex gap-2 items-center">
-        <label htmlFor="autoplay-toggle" className="font-medium">
-          Mode:
-        </label>
-        <select
-          id="autoplay-toggle"
-          value={autoplay ? "autoplay" : "manual"}
-          onChange={(e) => setAutoplay(e.target.value === "autoplay")}
-          className="border rounded px-2 py-1 text-base text-black"
-        >
-          <option value="autoplay">Autoplay</option>
-          <option value="manual">Manual</option>
-        </select>
-        <label htmlFor="spawn-mode" className="font-medium ml-4">
-          Click mode:
-        </label>
-        <select
-          id="spawn-mode"
-          value={spawnMode}
-          onChange={(e) => setSpawnMode(e.target.value as "snake" | "apple")}
-          className="border rounded px-2 py-1 text-base text-black"
-        >
-          <option value="snake">Spawn Snake</option>
-          <option value="apple">Spawn Apple</option>
-        </select>
+      <SnakeControls
+        autoplay={autoplay}
+        setAutoplay={setAutoplay}
+        spawnMode={spawnMode}
+        setSpawnMode={setSpawnMode}
+        onReset={handleReset}
+      />
+      <div className="mb-2 text-sm text-gray-600">
+        Longest Snake: {longestSnakeLength}
       </div>
       <div className="relative w-full">
-        <svg
-          width="100%"
-          height="100%"
-          viewBox={`0 0 ${containerPx} ${containerPx}`}
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full mx-auto md:mx-0"
-          preserveAspectRatio="xMidYMid meet"
+        <SnakeBoard
+          snakes={snakes}
+          apples={apples}
+          cellSize={cellSize}
+          gridSize={gridSize}
+          fadingSnakes={fadingSnakes}
+          onCellClick={handleCellClick}
           onPointerDown={handleGridPointerDown}
           onPointerUp={handleGridPointerUp}
-        >
-          <defs>
-            {/* Snake body gradient */}
-            <linearGradient id="snakeBody3D" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.7" />
-              <stop offset="60%" stopColor="#38bdf8" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#0ea5e9" stopOpacity="1" />
-            </linearGradient>
-            {/* Snake head gradient */}
-            <radialGradient id="snakeHead3D" cx="50%" cy="50%" r="70%">
-              <stop offset="0%" stopColor="#fffbe9" stopOpacity="0.9" />
-              <stop offset="70%" stopColor="#f59e42" stopOpacity="1" />
-              <stop offset="100%" stopColor="#b45309" stopOpacity="1" />
-            </radialGradient>
-            {/* Apple gradient */}
-            <radialGradient id="apple3D" cx="50%" cy="50%" r="70%">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.8" />
-              <stop offset="70%" stopColor="#ef4444" stopOpacity="1" />
-              <stop offset="100%" stopColor="#991b1b" stopOpacity="1" />
-            </radialGradient>
-            {/* Wall gradient */}
-            <linearGradient id="wall3D" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="#22223b" stopOpacity="0.7" />
-            </linearGradient>
-            {/* Drop shadow filter */}
-            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow
-                dx="2"
-                dy="2"
-                stdDeviation="2"
-                floodColor="#22223b"
-                floodOpacity="0.4"
-              />
-            </filter>
-          </defs>
-          {gridRects}
-          {/* Render walls with 3D gradient and shadow */}
-          {walls.flatMap((wall, i) => {
-            const coords = TETROMINOES[wall.shapeIndex];
-            return coords.map(([dx, dy], j) => (
-              <rect
-                key={`wall-${i}-${j}`}
-                x={(wall.x + dx) * cellSize}
-                y={(wall.y + dy) * cellSize}
-                width={cellSize}
-                height={cellSize}
-                fill={`url(#wall3D)`}
-                stroke={wall.color}
-                strokeWidth={2}
-                rx={cellSize / 6}
-                opacity={0.92}
-                filter="url(#shadow)"
-              />
-            ));
-          })}
-          {/* Render apples with 3D gradient and shadow */}
-          {gameStates.map((state, sidx) =>
-            state.apples.map(([ax, ay], i) => (
-              <rect
-                key={`apple-${sidx}-${i}`}
-                x={ax * cellSize}
-                y={ay * cellSize}
-                width={cellSize}
-                height={cellSize}
-                fill="url(#apple3D)"
-                stroke="#b91c1c"
-                strokeWidth={2}
-                rx={cellSize / 3}
-                opacity={0.9}
-                filter="url(#shadow)"
-              />
-            ))
-          )}
-          {/* Render snakes with 3D gradients and shadow */}
-          {gameStates.map((state, sidx) =>
-            state.snake.map(([x, y], i) => (
-              <rect
-                key={`snake-${sidx}-${i}`}
-                x={x * cellSize}
-                y={y * cellSize}
-                width={cellSize}
-                height={cellSize}
-                fill={i === 0 ? "url(#snakeHead3D)" : "url(#snakeBody3D)"}
-                stroke="#22223b"
-                strokeWidth={2}
-                rx={cellSize / 4}
-                opacity={fadingSnakes.includes(sidx) ? 0 : 0.88}
-                className={fadingSnakes.includes(sidx) ? "snake-fade-out" : ""}
-                style={{ transition: "opacity 0.7s" }}
-                filter="url(#shadow)"
-              />
-            ))
-          )}
-        </svg>
+        />
         {showCountdown && (
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
             <div
@@ -1011,14 +404,6 @@ export function SnakeGame() {
             </div>
           </div>
         )}
-      </div>
-      <div className="flex flex-col gap-4 w-full max-w-[500px] mt-4">
-        <button
-          className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-          onClick={resetGame}
-        >
-          Reset
-        </button>
       </div>
       <style jsx global>{`
         @keyframes fade-scale {
@@ -1045,27 +430,4 @@ export function SnakeGame() {
       `}</style>
     </div>
   );
-}
-
-function getForbiddenForApple({
-  snakes,
-  apples,
-  walls,
-  skipAppleIndex,
-}: {
-  snakes: number[][][];
-  apples: number[][];
-  walls: TetrominoWall[];
-  skipAppleIndex?: number;
-}) {
-  // Expand all wall tetrominoes into their occupied cells
-  const wallCells = walls.flatMap((wall) =>
-    TETROMINOES[wall.shapeIndex].map(([dx, dy]) => [wall.x + dx, wall.y + dy])
-  );
-  const forbidden = [
-    ...snakes.flat(),
-    ...wallCells,
-    ...apples.filter((_, i) => i !== skipAppleIndex),
-  ];
-  return forbidden;
 }
