@@ -11,6 +11,7 @@ import {
   SNAKE_PERSONALITIES,
   APPLE_SHAPE_POINTS,
 } from "./SnakeGame/logic/tournamentUtils";
+import { getHighContrastColor } from "./SnakeGame/logic/colorUtils";
 
 // Types
 type Player = {
@@ -23,13 +24,17 @@ type Player = {
 type Match = [Player, Player];
 
 interface TournamentState {
-  players: Player[]; // All competitors
-  bracket: Match[]; // List of matches (pairs of players)
-  currentMatch: number; // Index of the current match
-  currentRun: 0 | 1; // 0 = first player, 1 = second player
-  scores: [number | null, number | null]; // Scores for current match
-  winners: Player[]; // Winners so far
+  players: Player[];
+  bracket: Match[];
+  currentMatch: number;
+  currentRun: 0 | 1;
+  scores: [number | null, number | null];
+  winners: Player[];
+  losers: Player[];
   isTournamentComplete: boolean;
+  round: number; // 1 = winners, 2 = losers, 3 = grand final
+  grandFinal: Match | null;
+  isGrandFinal: boolean;
 }
 
 function getShapePreferences(shape: string | undefined, players: Player[]) {
@@ -159,7 +164,11 @@ export function SnakeGame() {
     currentRun: 0,
     scores: [null, null],
     winners: [],
+    losers: [],
     isTournamentComplete: false,
+    round: 1,
+    grandFinal: null,
+    isGrandFinal: false,
   };
 
   const [tournament, setTournament] =
@@ -260,7 +269,7 @@ export function SnakeGame() {
           const shape = eatenApple[4] || "circle";
           pointsGained = getApplePoints(shape);
           newScore += pointsGained;
-          newGrowth += 10;
+          newGrowth += 1;
           newApples = prev.apples.filter((_, idx) => idx !== eatenAppleIdx);
         }
         let newBody: [number, number][];
@@ -328,6 +337,8 @@ export function SnakeGame() {
             console.error(e);
           }
         }
+        const bodyColor = player.color;
+        const headColor = getHighContrastColor([bodyColor], 120);
         return {
           ...prev,
           snakes: [
@@ -337,6 +348,8 @@ export function SnakeGame() {
               dir: nextDir,
               growth: newGrowth,
               score: newScore,
+              bodyColor,
+              headColor,
             },
           ],
           apples: newApples,
@@ -384,6 +397,8 @@ export function SnakeGame() {
             number
           ]
       );
+      const bodyColor = player.color;
+      const headColor = getHighContrastColor([bodyColor], 120);
       return {
         ...prev,
         snakes: [
@@ -391,8 +406,8 @@ export function SnakeGame() {
             body,
             dir: [1, 0],
             alive: true,
-            bodyColor: player.color,
-            headColor: player.color,
+            bodyColor,
+            headColor,
             justSpawned: true,
             name: player.name,
             seed: player.seed,
@@ -456,20 +471,58 @@ export function SnakeGame() {
   }
 
   function handleNextMatch() {
-    // Determine winner
+    // Determine winner and loser
     const [scoreA, scoreB] = tournament.scores;
     const match = tournament.bracket[tournament.currentMatch];
     const winner = scoreA! >= scoreB! ? match[0] : match[1];
+    const loser = scoreA! < scoreB! ? match[0] : match[1];
     setTournament((prev) => {
-      const nextMatch = prev.currentMatch + 1;
-      const isComplete = nextMatch >= prev.bracket.length;
+      let nextMatch = prev.currentMatch + 1;
+      let newBracket = prev.bracket;
+      let newRound = prev.round;
+      let isComplete = false;
+      let newWinners = [...prev.winners, winner];
+      let newLosers = [...prev.losers, loser];
+      let grandFinal: Match | null = prev.grandFinal;
+      let isGrandFinal = prev.isGrandFinal;
+
+      // If first round complete, schedule losers bracket
+      if (nextMatch === prev.bracket.length && prev.round === 1) {
+        // Pair up losers for the losers bracket
+        const losersBracket: Match[] = [];
+        for (let i = 0; i < newLosers.length; i += 2) {
+          losersBracket.push([newLosers[i], newLosers[i + 1]]);
+        }
+        newBracket = losersBracket;
+        newRound = 2;
+        nextMatch = 0;
+        // If no losers bracket (shouldn't happen with 8 players), end tournament
+        if (losersBracket.length === 0) isComplete = true;
+      } else if (nextMatch === prev.bracket.length && prev.round === 2) {
+        // Schedule grand final
+        const winnersChampion = prev.winners[prev.winners.length - 1];
+        const losersChampion = prev.losers[prev.losers.length - 1];
+        grandFinal = [winnersChampion, losersChampion];
+        newBracket = [grandFinal];
+        newRound = 3;
+        nextMatch = 0;
+        isGrandFinal = true;
+      } else if (nextMatch === prev.bracket.length && prev.round === 3) {
+        isComplete = true;
+      }
+
       return {
         ...prev,
-        winners: [...prev.winners, winner],
+        winners: newWinners,
+        losers: newLosers,
+        bracket: newBracket,
         currentMatch: nextMatch,
         currentRun: 0,
         scores: [null, null],
         isTournamentComplete: isComplete,
+        round: newRound,
+        grandFinal,
+        isGrandFinal,
       };
     });
     setShowMatchModal(false);
@@ -553,7 +606,15 @@ export function SnakeGame() {
   function renderBracket() {
     return (
       <div className="mb-4 p-2 bg-gray-800 rounded text-white">
-        <div className="font-bold mb-2">Tournament Bracket</div>
+        <div className="font-bold mb-2">
+          {tournament.isGrandFinal
+            ? "Grand Final"
+            : tournament.round === 1
+            ? "Tournament Bracket (Winners Bracket)"
+            : tournament.round === 2
+            ? "Tournament Bracket (Losers Bracket)"
+            : "Tournament Bracket"}
+        </div>
         {tournament.bracket.map((match, mIdx) => (
           <div key={mIdx} className="ml-4">
             {match.map((player, i) => (
@@ -719,6 +780,14 @@ export function SnakeGame() {
     );
   }
 
+  // Live update apples eaten and length during the run
+  useEffect(() => {
+    const snake = gameState.snakes[0];
+    if (snake && runInProgress) {
+      setRunScore(snake.score || 0);
+    }
+  }, [gameState.snakes, runInProgress]);
+
   if (!hasMounted) return null;
 
   return (
@@ -740,50 +809,7 @@ export function SnakeGame() {
         {renderTournamentModal()}
       </div>
       {tournamentStarted && renderNextButton()}
-      {tournamentStarted && (
-        <button
-          className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-semibold shadow"
-          onClick={handleReset}
-        >
-          Reset Game
-        </button>
-      )}
-      {tournamentStarted && (
-        <div className="mb-2 text-xl text-white">
-          Current Longest Snake: {gameState.longestSnakeLength} <br />
-          All-Time Longest Snake: {gameState.allTimeLongest}
-        </div>
-      )}
-      {tournamentStarted && (
-        <div className="mb-2 text-lg text-white">
-          Free Spaces Remaining: {freeSpaces}
-        </div>
-      )}
-      {tournamentStarted && (
-        <div className="w-full flex flex-wrap items-center justify-center gap-4 mb-4 p-2 bg-gray-100 rounded shadow text-black">
-          <label className="font-semibold text-sm">
-            Speed:
-            <input
-              type="range"
-              min={30}
-              max={500}
-              step={10}
-              className="ml-1 w-32"
-              value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
-            />
-            <span className="ml-2">{speed} ms/tick</span>
-          </label>
-          <button
-            className={`px-3 py-1 rounded font-semibold shadow ${
-              isPlaying ? "bg-red-500 text-white" : "bg-green-600 text-white"
-            }`}
-            onClick={() => setIsPlaying((p) => !p)}
-          >
-            {isPlaying ? "Pause" : "Play"}
-          </button>
-        </div>
-      )}
+
       <style jsx global>{`
         @keyframes fade-scale {
           0% {

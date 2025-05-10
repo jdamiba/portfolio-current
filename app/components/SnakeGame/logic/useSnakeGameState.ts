@@ -241,7 +241,7 @@ export function useSnakeGameState({
     setGameState((prev) => ({
       ...prev,
       snakes: newSnakes,
-      apples: spawnUniqueApples(400, newSnakes),
+      apples: spawnUniqueApples(800, newSnakes),
       fadingSnakes: [],
       longestSnakeLength: 5,
       allTimeLongest,
