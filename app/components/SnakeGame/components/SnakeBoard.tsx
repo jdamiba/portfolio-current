@@ -1,6 +1,5 @@
 import React from "react";
 import { Snake } from "../logic/types";
-import SnakeBodyClassic from "../sprites/SnakeBodyClassic";
 import AppleTriangle from "../sprites/AppleTriangle";
 import ApplePentagon from "../sprites/ApplePentagon";
 import AppleHexagon from "../sprites/AppleHexagon";
@@ -140,22 +139,16 @@ export const SnakeBoard: React.FC<SnakeBoardProps> = ({
         {/* Render snakes as SVG pixel art */}
         {snakes.map((snake, sidx) =>
           snake.body.map(([x, y], i) => (
-            <foreignObject
+            <rect
               key={`snake-${sidx}-${i}`}
               x={x * cellSize}
               y={y * cellSize}
               width={cellSize}
               height={cellSize}
-              style={{
-                pointerEvents: "none",
-                opacity: 0.88,
-              }}
-            >
-              <SnakeBodyClassic
-                size={cellSize}
-                color={i === 0 ? snake.headColor : snake.bodyColor}
-              />
-            </foreignObject>
+              fill={i === 0 ? snake.headColor : snake.bodyColor}
+              opacity={1}
+              style={{ pointerEvents: "none" }}
+            />
           ))
         )}
       </svg>

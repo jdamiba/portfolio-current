@@ -61,25 +61,24 @@ export function SnakeGame() {
     snakesRef,
   } = useSnakeGame();
 
-  const { gameState, setGameState, hasMounted, handleReset } =
-    useSnakeGameState({
-      gridSize,
-      cellSize,
-      autoplay,
-      spawnMode,
-      setSpawnMode,
-      setAutoplay,
-      intervalRef,
-      lastTouchRef,
-      snakesRef,
-      showCountdown,
-      setShowCountdown,
-      countdown,
-      setCountdown,
-    });
+  const { gameState, setGameState, hasMounted } = useSnakeGameState({
+    gridSize,
+    cellSize,
+    autoplay,
+    spawnMode,
+    setSpawnMode,
+    setAutoplay,
+    intervalRef,
+    lastTouchRef,
+    snakesRef,
+    showCountdown,
+    setShowCountdown,
+    countdown,
+    setCountdown,
+  });
 
-  const [speed, setSpeed] = useState(50); // default 100ms per tick
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [speed] = useState(50); // default 100ms per tick
+  const [isPlaying] = useState(true);
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [showCountdownOverlay, setShowCountdownOverlay] = useState(false);
   const [countdownValue, setCountdownValue] = useState(3);
@@ -372,14 +371,6 @@ export function SnakeGame() {
     tournament.currentRun,
   ]);
 
-  // Calculate free spaces remaining
-  const occupiedCells = new Set([
-    ...gameState.snakes.flatMap((s) => s.body.map(([x, y]) => `${x},${y}`)),
-    ...gameState.apples.map(([x, y]) => `${x},${y}`),
-  ]);
-  const totalCells = gridSize * gridSize;
-  const freeSpaces = totalCells - occupiedCells.size;
-
   // --- Tournament Logic ---
   // 1. On mount or after each match, set up the next run
   useEffect(() => {
@@ -481,8 +472,8 @@ export function SnakeGame() {
       let newBracket = prev.bracket;
       let newRound = prev.round;
       let isComplete = false;
-      let newWinners = [...prev.winners, winner];
-      let newLosers = [...prev.losers, loser];
+      const newWinners = [...prev.winners, winner];
+      const newLosers = [...prev.losers, loser];
       let grandFinal: Match | null = prev.grandFinal;
       let isGrandFinal = prev.isGrandFinal;
 
