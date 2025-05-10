@@ -137,20 +137,43 @@ export const SnakeBoard: React.FC<SnakeBoardProps> = ({
           );
         })}
         {/* Render snakes as SVG pixel art */}
-        {snakes.map((snake, sidx) =>
-          snake.body.map(([x, y], i) => (
-            <rect
-              key={`snake-${sidx}-${i}`}
-              x={x * cellSize}
-              y={y * cellSize}
-              width={cellSize}
-              height={cellSize}
-              fill={i === 0 ? snake.headColor : snake.bodyColor}
-              opacity={1}
-              style={{ pointerEvents: "none" }}
-            />
-          ))
-        )}
+        {snakes.map((snake, sidx) => {
+          return snake.body.map(([x, y], i) => {
+            if (i === 0) {
+              // Head
+              return (
+                <rect
+                  key={`snake-${sidx}-${i}`}
+                  x={x * cellSize}
+                  y={y * cellSize}
+                  width={cellSize}
+                  height={cellSize}
+                  fill={snake.headColor}
+                  opacity={1}
+                  style={{ pointerEvents: "none" }}
+                />
+              );
+            } else {
+              // Use the color for this segment from bodyColors, fallback to bodyColor
+              const segColor =
+                snake.bodyColors && snake.bodyColors[i]
+                  ? snake.bodyColors[i]
+                  : snake.bodyColor;
+              return (
+                <rect
+                  key={`snake-${sidx}-${i}`}
+                  x={x * cellSize}
+                  y={y * cellSize}
+                  width={cellSize}
+                  height={cellSize}
+                  fill={segColor}
+                  opacity={1}
+                  style={{ pointerEvents: "none" }}
+                />
+              );
+            }
+          });
+        })}
       </svg>
     </div>
   );

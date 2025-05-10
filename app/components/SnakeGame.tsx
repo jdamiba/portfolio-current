@@ -173,6 +173,22 @@ export function SnakeGame() {
   const [tournament, setTournament] =
     useState<TournamentState>(initialTournament);
 
+  // Rainbow palette for the snake
+  const rainbowPalette = [
+    "#FF4136", // red
+    "#FF851B", // orange
+    "#FFDC00", // yellow
+    "#2ECC40", // green
+    "#0074D9", // blue
+    "#B10DC9", // purple
+    "#F012BE", // magenta
+    "#39CCCC", // cyan
+    "#3D9970", // teal
+    "#85144b", // maroon
+    "#AAAAAA", // gray
+    "#111111", // black
+  ];
+
   // --- Global Clock and Game Loop ---
   useEffect(() => {
     if (!isPlaying && intervalRef.current) {
@@ -263,6 +279,17 @@ export function SnakeGame() {
         let newGrowth = snake.growth || 0;
         let newApples = prev.apples;
         let newScore = snake.score || 0;
+        const newPendingTailColors = snake.pendingTailColors
+          ? [...snake.pendingTailColors]
+          : [];
+        let newBodyColors = snake.bodyColors
+          ? [...snake.bodyColors]
+          : Array(snake.body.length).fill(snake.bodyColor);
+        let newRainbowColorIndex =
+          typeof snake.rainbowColorIndex === "number"
+            ? snake.rainbowColorIndex
+            : (snake.bodyColors ? snake.bodyColors.length : 0) %
+              rainbowPalette.length;
         if (eatenAppleIdx !== -1) {
           const eatenApple = prev.apples[eatenAppleIdx];
           const shape = eatenApple[4] || "circle";
@@ -270,13 +297,31 @@ export function SnakeGame() {
           newScore += pointsGained;
           newGrowth += 1;
           newApples = prev.apples.filter((_, idx) => idx !== eatenAppleIdx);
+          const appleColor = eatenApple[2] || snake.bodyColor;
+          newPendingTailColors.push(appleColor);
+          newBodyColors[newBodyColors.length - 1] = appleColor;
         }
         let newBody: [number, number][];
         if (newGrowth > 0) {
           newBody = [[x, y], ...snake.body];
           newGrowth--;
+          if (newPendingTailColors.length > 0) {
+            newPendingTailColors.shift();
+          }
+          newBodyColors = [
+            rainbowPalette[newRainbowColorIndex],
+            ...newBodyColors,
+          ];
+          newRainbowColorIndex =
+            (newRainbowColorIndex + 1) % rainbowPalette.length;
         } else {
           newBody = [[x, y], ...snake.body].slice(0, -1) as [number, number][];
+          newBodyColors = [
+            rainbowPalette[newRainbowColorIndex],
+            ...newBodyColors,
+          ].slice(0, -1);
+          newRainbowColorIndex =
+            (newRainbowColorIndex + 1) % rainbowPalette.length;
         }
         // Always maintain the initial apple count (e.g., 95)
         const APPLE_COUNT = 95;
@@ -336,8 +381,6 @@ export function SnakeGame() {
             console.error(e);
           }
         }
-        const bodyColor = player.color;
-        const headColor = getHighContrastColor([bodyColor], 120);
         return {
           ...prev,
           snakes: [
@@ -347,8 +390,9 @@ export function SnakeGame() {
               dir: nextDir,
               growth: newGrowth,
               score: newScore,
-              bodyColor,
-              headColor,
+              pendingTailColors: newPendingTailColors,
+              bodyColors: newBodyColors,
+              rainbowColorIndex: newRainbowColorIndex,
             },
           ],
           apples: newApples,
@@ -369,6 +413,7 @@ export function SnakeGame() {
     tournament.bracket,
     tournament.currentMatch,
     tournament.currentRun,
+    rainbowPalette,
   ]);
 
   // --- Tournament Logic ---
@@ -390,6 +435,11 @@ export function SnakeGame() {
       );
       const bodyColor = player.color;
       const headColor = getHighContrastColor([bodyColor], 120);
+      const bodyColors = Array.from(
+        { length: body.length },
+        (_, i) => rainbowPalette[i % rainbowPalette.length]
+      );
+      const rainbowColorIndex = body.length % rainbowPalette.length;
       return {
         ...prev,
         snakes: [
@@ -402,6 +452,8 @@ export function SnakeGame() {
             justSpawned: true,
             name: player.name,
             seed: player.seed,
+            bodyColors,
+            rainbowColorIndex,
           },
         ],
         longestSnakeLength: 5,
@@ -418,6 +470,7 @@ export function SnakeGame() {
     setGameState,
     tournament.bracket,
     tournament.isTournamentComplete,
+    rainbowPalette,
   ]);
 
   // Countdown overlay effect

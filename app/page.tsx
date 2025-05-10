@@ -24,6 +24,14 @@ export default function Home() {
       type: "image" as const,
     },
     {
+      title: "Snake Game",
+      description: "A snake game built with React, Next.js, and TypeScript.",
+      image: "/images/snake.png",
+      link: "/snake",
+      tags: ["Next.js", "React", "Tailwind CSS"],
+      type: "image" as const,
+    },
+    {
       title: "What It's Like To Learn About LangChain",
       description:
         "A short film I produced, wrote, and starred in about learning about the LangChain framework.",
