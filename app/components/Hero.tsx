@@ -1,17 +1,10 @@
 import Link from "next/link";
 import { Github, Linkedin, Mail } from "lucide-react";
 import React from "react";
-import { SnakeGame } from "./SnakeGame";
 
 export function Hero({ intro }: { intro: string }) {
   return (
     <section className="relative flex flex-col pt-[50px] md:flex-row items-center md:items-stretch justify-center min-h-[60vh] md:min-h-[70vh] w-full gap-0 md:gap-8 px-2 md:px-0">
-      {/* Left: Animated Snake Game */}
-      <div className="flex w-full md:w-1/2 items-center justify-center py-8 md:py-0 min-h-[400px] h-full m-auto">
-        <div className="w-full h-full aspect-square max-w-[500px] max-h-[500px] flex items-center justify-center">
-          <SnakeGame />
-        </div>
-      </div>
       {/* Right: Text Content */}
       <div className="flex w-full md:w-1/2 flex-col justify-center items-center md:items-start text-center md:text-left py-4 md:py-0">
         <h1 className="mb-2 text-4xl sm:text-5xl font-bold tracking-tight">

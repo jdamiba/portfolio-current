@@ -16,7 +16,9 @@
     "next": "15.1.6",
     "prismjs": "^1.30.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tone": "^15.1.22",
+    "webaudiofont": "^3.0.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

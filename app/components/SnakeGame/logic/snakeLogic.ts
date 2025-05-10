@@ -214,3 +214,205 @@ export function getNextDirection(
   // If no safe moves, keep going in the current direction
   return currentDir;
 }
+
+// --- Snake Personalities ---
+// Each function returns a direction for the snake
+export function aggressivePathfinding(
+  snake: [number, number][],
+  apples: [number, number][],
+  currentDir: Direction,
+  allSnakes: [number, number][][],
+  gridSize: number
+): Direction {
+  // Always go for the nearest apple (A*), fallback to getNextDirection
+  return getNextDirection(
+    snake,
+    apples[0],
+    currentDir,
+    allSnakes,
+    [],
+    gridSize
+  );
+}
+export function cautiousPathfinding(
+  snake: [number, number][],
+  apples: [number, number][],
+  currentDir: Direction,
+  allSnakes: [number, number][][],
+  gridSize: number
+): Direction {
+  // Like aggressive, but avoids edges (prefers moves that keep it away from the wall)
+  const dir = getNextDirection(
+    snake,
+    apples[0],
+    currentDir,
+    allSnakes,
+    [],
+    gridSize
+  );
+  const head = snake[0];
+  const [x, y] = [head[0] + dir[0], head[1] + dir[1]];
+  if (x < 2 || x > gridSize - 3 || y < 2 || y > gridSize - 3) {
+    // Try to move toward center if near edge
+    const center = Math.floor(gridSize / 2);
+    if (head[0] < center) return [1, 0];
+    if (head[0] > center) return [-1, 0];
+    if (head[1] < center) return [0, 1];
+    if (head[1] > center) return [0, -1];
+  }
+  return dir;
+}
+export function randomPathfinding(
+  snake: [number, number][],
+  apples: [number, number][],
+  currentDir: Direction,
+  allSnakes: [number, number][][],
+  gridSize: number
+): Direction {
+  // 30% chance to move randomly, otherwise aggressive
+  if (Math.random() < 0.3) {
+    const dirs: Direction[] = [
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+      [0, -1],
+    ];
+    return dirs[Math.floor(Math.random() * dirs.length)];
+  }
+  return getNextDirection(
+    snake,
+    apples[0],
+    currentDir,
+    allSnakes,
+    [],
+    gridSize
+  );
+}
+export function greedyPathfinding(
+  snake: [number, number][],
+  apples: [number, number][],
+  currentDir: Direction,
+  allSnakes: [number, number][][],
+  gridSize: number
+): Direction {
+  // Go for the apple in the densest cluster (most apples within 3 cells)
+  let bestApple = apples[0];
+  let maxCluster = -1;
+  for (const a of apples) {
+    const cluster = apples.filter(
+      ([ax, ay]) => Math.abs(ax - a[0]) + Math.abs(ay - a[1]) <= 3
+    ).length;
+    if (cluster > maxCluster) {
+      maxCluster = cluster;
+      bestApple = a;
+    }
+  }
+  return getNextDirection(
+    snake,
+    bestApple,
+    currentDir,
+    allSnakes,
+    [],
+    gridSize
+  );
+}
+export function edgeHuggerPathfinding(
+  snake: [number, number][],
+  apples: [number, number][],
+  currentDir: Direction,
+  allSnakes: [number, number][][],
+  gridSize: number
+): Direction {
+  // Prefer moves that keep the snake near the edge
+  const head = snake[0];
+  const edgeDirs: Direction[] = [];
+  if (head[0] === 0) edgeDirs.push([-1, 0]);
+  if (head[0] === gridSize - 1) edgeDirs.push([1, 0]);
+  if (head[1] === 0) edgeDirs.push([0, -1]);
+  if (head[1] === gridSize - 1) edgeDirs.push([0, 1]);
+  if (edgeDirs.length > 0) {
+    return edgeDirs[Math.floor(Math.random() * edgeDirs.length)];
+  }
+  // Otherwise, move toward nearest edge
+  if (head[0] < gridSize / 2) return [-1, 0];
+  if (head[0] > gridSize / 2) return [1, 0];
+  if (head[1] < gridSize / 2) return [0, -1];
+  if (head[1] > gridSize / 2) return [0, 1];
+  return getNextDirection(
+    snake,
+    apples[0],
+    currentDir,
+    allSnakes,
+    [],
+    gridSize
+  );
+}
+export function centerSeekerPathfinding(
+  snake: [number, number][],
+  apples: [number, number][],
+  currentDir: Direction,
+  allSnakes: [number, number][][],
+  gridSize: number
+): Direction {
+  // Prefer moves that keep the snake near the center
+  const head = snake[0];
+  const center = Math.floor(gridSize / 2);
+  if (head[0] < center) return [1, 0];
+  if (head[0] > center) return [-1, 0];
+  if (head[1] < center) return [0, 1];
+  if (head[1] > center) return [0, -1];
+  return getNextDirection(
+    snake,
+    apples[0],
+    currentDir,
+    allSnakes,
+    [],
+    gridSize
+  );
+}
+export function lazyPathfinding(
+  snake: [number, number][],
+  apples: [number, number][],
+  currentDir: Direction,
+  allSnakes: [number, number][][],
+  gridSize: number
+): Direction {
+  // 50% chance to skip apples far away (move randomly instead)
+  const head = snake[0];
+  let nearestApple = apples[0];
+  let minDist =
+    Math.abs(head[0] - nearestApple[0]) + Math.abs(head[1] - nearestApple[1]);
+  for (const a of apples) {
+    const dist = Math.abs(head[0] - a[0]) + Math.abs(head[1] - a[1]);
+    if (dist < minDist) {
+      minDist = dist;
+      nearestApple = a;
+    }
+  }
+  if (minDist > 10 && Math.random() < 0.5) {
+    const dirs: Direction[] = [
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+      [0, -1],
+    ];
+    return dirs[Math.floor(Math.random() * dirs.length)];
+  }
+  return getNextDirection(
+    snake,
+    nearestApple,
+    currentDir,
+    allSnakes,
+    [],
+    gridSize
+  );
+}
+export function zigzagPathfinding(snake: [number, number][]): Direction {
+  // Alternates direction every move
+  type ZigzagSnake = [number, number][] & { _zigzag?: number };
+  const zzSnake = snake as ZigzagSnake;
+  if (!zzSnake._zigzag) zzSnake._zigzag = 0;
+  zzSnake._zigzag = 1 - (zzSnake._zigzag || 0);
+  if (zzSnake._zigzag) return [0, 1];
+  return [1, 0];
+}

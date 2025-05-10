@@ -1,15 +1,18 @@
 import React from "react";
-import { Snake } from "./types";
+import { Snake } from "../logic/types";
+import SnakeBodyClassic from "../sprites/SnakeBodyClassic";
+import AppleTriangle from "../sprites/AppleTriangle";
+import ApplePentagon from "../sprites/ApplePentagon";
+import AppleHexagon from "../sprites/AppleHexagon";
+import AppleHeptagon from "../sprites/AppleHeptagon";
+import AppleOctagon from "../sprites/AppleOctagon";
+import AppleStar from "../sprites/AppleStar";
 
 interface SnakeBoardProps {
   snakes: Snake[];
-  apples: [number, number, string][];
+  apples: [number, number, string, string, string][];
   cellSize: number;
   gridSize: number;
-  fadingSnakes: number[];
-  onCellClick: (x: number, y: number) => void;
-  onPointerDown: (e: React.PointerEvent) => void;
-  onPointerUp: (e: React.PointerEvent) => void;
 }
 
 export const SnakeBoard: React.FC<SnakeBoardProps> = ({
@@ -17,10 +20,6 @@ export const SnakeBoard: React.FC<SnakeBoardProps> = ({
   apples,
   cellSize,
   gridSize,
-  fadingSnakes,
-  onCellClick,
-  onPointerDown,
-  onPointerUp,
 }) => {
   const gridRects = [];
   for (let x = 0; x < gridSize; x++) {
@@ -36,9 +35,18 @@ export const SnakeBoard: React.FC<SnakeBoardProps> = ({
           stroke="#22223b"
           strokeWidth={1.1}
           opacity={0.3}
-          onClick={() => onCellClick(x, y)}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: "default" }}
         />
+        // To use a background tile, replace the <rect> above with:
+        // <foreignObject
+        //   key={`tile-${x}-${y}`}
+        //   x={x * cellSize}
+        //   y={y * cellSize}
+        //   width={cellSize}
+        //   height={cellSize}
+        // >
+        //   <DirtTile size={cellSize} />
+        // </foreignObject>
       );
     }
   }
@@ -52,8 +60,6 @@ export const SnakeBoard: React.FC<SnakeBoardProps> = ({
       xmlns="http://www.w3.org/2000/svg"
       className="w-full h-full mx-auto md:mx-0"
       preserveAspectRatio="xMidYMid meet"
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
     >
       <defs>
         {/* Snake body gradient */}
@@ -86,40 +92,60 @@ export const SnakeBoard: React.FC<SnakeBoardProps> = ({
         </filter>
       </defs>
       {gridRects}
-      {/* Render apples with their color */}
-      {apples.map(([ax, ay, color], i) => (
-        <rect
-          key={`apple-${i}`}
-          x={ax * cellSize}
-          y={ay * cellSize}
-          width={cellSize}
-          height={cellSize}
-          fill={color}
-          stroke="#b91c1c"
-          strokeWidth={2}
-          rx={cellSize / 3}
-          opacity={0.9}
-          filter="url(#shadow)"
-        />
-      ))}
-      {/* Render snakes with 3D gradients and shadow */}
+      {/* Render apples as SVG pixel art */}
+      {apples.map(([ax, ay, color, , shape], i) => {
+        if (ax < 0 || ax >= gridSize || ay < 0 || ay >= gridSize) {
+          console.warn("Apple out of bounds:", ax, ay, color, shape);
+          return null;
+        }
+        return (
+          <foreignObject
+            key={`apple-${i}`}
+            x={ax * cellSize}
+            y={ay * cellSize}
+            width={cellSize}
+            height={cellSize}
+            style={{ pointerEvents: "none" }}
+          >
+            {shape === "square" && <AppleStar size={cellSize} color={color} />}
+            {shape === "triangle" && (
+              <AppleTriangle size={cellSize} color={color} />
+            )}
+            {shape === "pentagon" && (
+              <ApplePentagon size={cellSize} color={color} />
+            )}
+            {shape === "hexagon" && (
+              <AppleHexagon size={cellSize} color={color} />
+            )}
+            {shape === "heptagon" && (
+              <AppleHeptagon size={cellSize} color={color} />
+            )}
+            {shape === "octagon" && (
+              <AppleOctagon size={cellSize} color={color} />
+            )}
+            {shape === "star" && <AppleStar size={cellSize} color={color} />}
+          </foreignObject>
+        );
+      })}
+      {/* Render snakes as SVG pixel art */}
       {snakes.map((snake, sidx) =>
         snake.body.map(([x, y], i) => (
-          <rect
+          <foreignObject
             key={`snake-${sidx}-${i}`}
             x={x * cellSize}
             y={y * cellSize}
             width={cellSize}
             height={cellSize}
-            fill={i === 0 ? snake.headColor : snake.bodyColor}
-            stroke="#222"
-            strokeWidth={2.5}
-            rx={cellSize / 4}
-            opacity={fadingSnakes.includes(sidx) ? 0 : 0.88}
-            className={fadingSnakes.includes(sidx) ? "snake-fade-out" : ""}
-            style={{ transition: "opacity 0.7s" }}
-            filter="url(#shadow)"
-          />
+            style={{
+              pointerEvents: "none",
+              opacity: 0.88,
+            }}
+          >
+            <SnakeBodyClassic
+              size={cellSize}
+              color={i === 0 ? snake.headColor : snake.bodyColor}
+            />
+          </foreignObject>
         ))
       )}
     </svg>

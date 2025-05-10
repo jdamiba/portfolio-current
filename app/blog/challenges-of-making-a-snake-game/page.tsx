@@ -69,15 +69,6 @@ export default function BlogPost() {
               the snake gets longer and harder to maneuver.
             </p>
             <p>
-              <strong>What is Conway&apos;s Game of Life?</strong> The Game of
-              Life is a famous cellular automaton invented by mathematician John
-              Conway. It consists of a grid of cells that &quot;live&quot; or
-              &quot;die&quot; based on simple rules about their neighbors,
-              creating fascinating patterns that evolve over time. In this
-              project, I used the Game of Life to generate dynamic apple
-              patterns for the Snake game.
-            </p>
-            <p>
               Building a Snake game might seem simple at first glance, but as I
               discovered while developing a feature-rich, visually dynamic
               version in React and Next.js, there are plenty of subtle and
@@ -85,6 +76,71 @@ export default function BlogPost() {
               share some of the real-world issues I encountered, how I debugged
               them, and the lessons learned—using examples from my own code and
               development process.
+            </p>
+
+            <h2>0. New Tournament Mode: 8 Unique AI Snakes</h2>
+            <p>
+              The latest version of the game introduces a full tournament mode!
+              Now, 8 unique AI snakes compete in a bracket. Each snake has its
+              own name, color, playstyle, and preferred apple shape. The
+              tournament is structured as a series of 1v1 matches, with each
+              player taking a turn. The winner is the snake with the highest
+              score in each match, and the bracket advances until a champion is
+              crowned.
+            </p>
+            <ul>
+              <li>
+                <strong>Bracket System:</strong> 8 players, 4 matches in the
+                first round, then semifinals and finals.
+              </li>
+              <li>
+                <strong>Match Flow:</strong> Each match consists of two runs
+                (one per player), with a clear &quot;score to beat&quot; for the
+                second player.
+              </li>
+              <li>
+                <strong>UI Improvements:</strong> Tournament bracket, countdown
+                overlays, and clear winner announcements.
+              </li>
+            </ul>
+
+            <h2>Unique Playstyles and Preferred Shapes</h2>
+            <p>
+              Each AI snake is now defined by a unique playstyle (aggressive,
+              cautious, random, greedy, etc.) and a preferred apple shape
+              (circle, triangle, square, etc.). The playstyle determines how the
+              snake navigates the board, while the preferred shape gives bonus
+              points when eaten. This makes each match-up feel distinct and adds
+              a layer of strategy and personality to the tournament.
+            </p>
+            <ul>
+              <li>
+                <strong>Playstyles:</strong> Each AI uses a different
+                pathfinding algorithm, from classic A* to wall-hugging and
+                zigzag patterns.
+              </li>
+              <li>
+                <strong>Preferred Shapes:</strong> Eating your preferred apple
+                shape can give a bonus, and the UI shows which shapes each snake
+                prefers.
+              </li>
+            </ul>
+
+            <h2>Score to Beat: Real Tournament Tension</h2>
+            <p>
+              During the second run of each match, the UI now displays the
+              &quot;score to beat&quot;—the first player&apos;s score. This adds
+              real tension and clarity for both players and spectators, making
+              it easy to follow who&apos;s winning and what&apos;s at stake.
+            </p>
+
+            <h2>Refactoring for Clarity and Maintainability</h2>
+            <p>
+              As the project grew, I refactored the tournament logic to be as
+              clear and junior-friendly as possible. The state is minimal and
+              explicit, the game flow is linear, and the UI overlays are
+              controlled by simple booleans. This makes the codebase easy to
+              follow, extend, and debug.
             </p>
 
             <h2>1. Apple Spawning: When Apples Refuse to Appear 🍏</h2>
@@ -213,6 +269,18 @@ if (!hasMounted) return null;`}
               <li>
                 Debugging is easier when you log and visualize state changes
                 (e.g., snake colors, apple positions).
+              </li>
+              <li>
+                Tournament logic is much easier to maintain when state and flow
+                are kept simple and explicit.
+              </li>
+              <li>
+                Giving each AI a unique playstyle and preferred shape makes the
+                game more fun and replayable.
+              </li>
+              <li>
+                UI features like &quot;score to beat&quot; and clear overlays
+                make the tournament experience more engaging.
               </li>
             </ul>
 

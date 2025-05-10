@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { Snake, Direction } from "./types";
-import { getAliveCells, createRandomPatternGrid } from "./gameOfLife";
 import { getHighContrastColor } from "./colorUtils";
 
 const BACKGROUND_COLOR = "#f3f4f6";
@@ -15,6 +14,7 @@ export function useSnakeGame(gridSize = 36, containerPx = 500) {
         [BACKGROUND_COLOR, bodyColor],
         120
       );
+
       return {
         body: Array.from(
           { length: 5 },
@@ -31,10 +31,6 @@ export function useSnakeGame(gridSize = 36, containerPx = 500) {
       };
     })(),
   ]);
-  const [appleGrid, setAppleGrid] = useState<(string | null)[][]>(() =>
-    createRandomPatternGrid(gridSize, 7, 3, 2, 2, 1)
-  );
-  const apples: [number, number, string][] = getAliveCells(appleGrid);
   const [autoplay, setAutoplay] = useState(true);
   const [manualDir, setManualDir] = useState<[number, number]>([1, 0]);
   const [spawnMode, setSpawnMode] = useState<"snake" | "apple">("snake");
@@ -54,9 +50,6 @@ export function useSnakeGame(gridSize = 36, containerPx = 500) {
     cellSize,
     snakes,
     setSnakes,
-    appleGrid,
-    setAppleGrid,
-    apples,
     autoplay,
     setAutoplay,
     manualDir,

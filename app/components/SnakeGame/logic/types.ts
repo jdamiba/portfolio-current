@@ -8,6 +8,11 @@ export interface Snake {
   alive: boolean;
   bodyColor: string;
   headColor: string;
+  justSpawned?: boolean;
+  name?: string;
+  seed?: number;
+  growth?: number;
+  score?: number;
 }
 
 export type Apple = [number, number];

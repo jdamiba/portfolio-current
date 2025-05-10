@@ -69,6 +69,7 @@ export function createHandleCellClick({
               [BACKGROUND_COLOR, bodyColor],
               120
             );
+
             return {
               body,
               dir: [1, 0] as Direction,
