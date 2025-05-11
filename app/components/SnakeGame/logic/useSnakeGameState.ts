@@ -32,7 +32,6 @@ export function useSnakeGameState({
   const [gameState, setGameState] = useState<{
     snakes: Snake[];
     apples: [number, number, string, string, string][];
-    fadingSnakes: number[];
     longestSnakeLength: number;
     allTimeLongest: number;
   }>(() => {
@@ -65,7 +64,6 @@ export function useSnakeGameState({
     return {
       snakes,
       apples: [],
-      fadingSnakes: [],
       longestSnakeLength: 0,
       allTimeLongest: 0,
     };
@@ -242,7 +240,6 @@ export function useSnakeGameState({
       ...prev,
       snakes: newSnakes,
       apples: spawnUniqueApples(800, newSnakes),
-      fadingSnakes: [],
       longestSnakeLength: 5,
       allTimeLongest,
     }));
@@ -254,38 +251,9 @@ export function useSnakeGameState({
       ...prev,
       snakes: newSnakes,
       apples: spawnUniqueApples(95, newSnakes),
-      fadingSnakes: [],
       longestSnakeLength: 5,
     }));
   };
-
-  // When a snake dies, add its index to fadingSnakes
-  useEffect(() => {
-    setGameState((prev) => {
-      const dead = prev.snakes
-        .map((snake, idx) =>
-          !snake.alive && !prev.fadingSnakes.includes(idx) ? idx : null
-        )
-        .filter((idx) => idx !== null) as number[];
-      if (dead.length === 0) return prev;
-      return { ...prev, fadingSnakes: [...prev.fadingSnakes, ...dead] };
-    });
-  }, [gameState.snakes]);
-
-  // Remove faded snakes after animation
-  useEffect(() => {
-    if (gameState.fadingSnakes.length === 0) return;
-    const timeout = setTimeout(() => {
-      setGameState((prev) => ({
-        ...prev,
-        snakes: prev.snakes.filter(
-          (_, idx) => !prev.fadingSnakes.includes(idx)
-        ),
-        fadingSnakes: [],
-      }));
-    }, 700); // match fade duration
-    return () => clearTimeout(timeout);
-  }, [gameState.fadingSnakes]);
 
   return {
     gameState,

@@ -11,7 +11,9 @@ import {
   SNAKE_PERSONALITIES,
   APPLE_SHAPE_POINTS,
 } from "./SnakeGame/logic/tournamentUtils";
-import { getHighContrastColor } from "./SnakeGame/logic/colorUtils";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 // Types
 type Player = {
@@ -35,14 +37,82 @@ interface TournamentState {
   round: number; // 1 = winners, 2 = losers, 3 = grand final
   grandFinal: Match | null;
   isGrandFinal: boolean;
+  matchHistory: {
+    a: Player;
+    b: Player;
+    scoreA: number;
+    scoreB: number;
+    winner: Player;
+    round: number;
+  }[];
 }
 
-function getShapePreferences(shape: string | undefined, players: Player[]) {
-  if (!shape) return [];
-  return players
-    .filter((p: Player) => p.preferredShape === shape)
-    .map((p: Player) => p.name);
+// Match history entry type (should match backend)
+type MatchHistoryEntry = {
+  round: number;
+  matchIndex: number;
+  a: Player;
+  b: Player;
+  scoreA: number;
+  scoreB: number;
+  winner: Player;
+};
+
+// Helper: get apple shape points
+function getApplePoints(shape: string) {
+  return APPLE_SHAPE_POINTS[shape] || 1;
 }
+
+const SNAKE_PALETTES = [
+  // Garter Snake
+  {
+    name: "Garter Snake",
+    head: "#3a5d23",
+    body: ["#6fcf3a", "#3a5d23", "#e2c275"],
+  },
+  // Corn Snake
+  {
+    name: "Corn Snake",
+    head: "#b7410e",
+    body: ["#e25822", "#f6e27a", "#b7410e"],
+  },
+  // Ball Python
+  {
+    name: "Ball Python",
+    head: "#3b2f1c",
+    body: ["#e2c275", "#3b2f1c", "#a67c52"],
+  },
+  // King Snake
+  {
+    name: "King Snake",
+    head: "#22223b",
+    body: ["#fff", "#22223b", "#e63946"],
+  },
+  // Green Tree Python
+  {
+    name: "Green Tree Python",
+    head: "#2e8b57",
+    body: ["#a3e635", "#2e8b57", "#fff"],
+  },
+  // Milk Snake
+  {
+    name: "Milk Snake",
+    head: "#b22222",
+    body: ["#fff", "#b22222", "#22223b"],
+  },
+  // Boa Constrictor
+  {
+    name: "Boa Constrictor",
+    head: "#8b5e3c",
+    body: ["#e2c275", "#8b5e3c", "#fff"],
+  },
+  // Black Mamba
+  {
+    name: "#222",
+    head: "#222",
+    body: ["#222", "#888", "#bbb"],
+  },
+];
 
 export function SnakeGame() {
   const {
@@ -61,7 +131,7 @@ export function SnakeGame() {
     snakesRef,
   } = useSnakeGame();
 
-  const { gameState, setGameState, hasMounted } = useSnakeGameState({
+  const { gameState, setGameState } = useSnakeGameState({
     gridSize,
     cellSize,
     autoplay,
@@ -77,117 +147,43 @@ export function SnakeGame() {
     setCountdown,
   });
 
-  const [speed] = useState(50); // default 100ms per tick
+  const [speed] = useState(25); // default 100ms per tick
   const [isPlaying] = useState(true);
-  const [showMatchModal, setShowMatchModal] = useState(false);
   const [showCountdownOverlay, setShowCountdownOverlay] = useState(false);
   const [countdownValue, setCountdownValue] = useState(3);
   const [runInProgress, setRunInProgress] = useState(false);
-  const [runScore, setRunScore] = useState(0);
 
   const [tournamentStarted, setTournamentStarted] = useState(false);
-  const [showRunModal, setShowRunModal] = useState(false);
+  const [pendingRunSetup, setPendingRunSetup] = useState(true);
 
-  const initialPlayers: Player[] = [
-    {
-      name: "Alice",
-      color: "#f00",
-      seed: 1,
-      playstyle: "aggressivePathfinding",
-      preferredShape: "circle",
-    },
-    {
-      name: "Bob",
-      color: "#0f0",
-      seed: 2,
-      playstyle: "cautiousPathfinding",
-      preferredShape: "triangle",
-    },
-    {
-      name: "Carol",
-      color: "#00f",
-      seed: 3,
-      playstyle: "randomPathfinding",
-      preferredShape: "square",
-    },
-    {
-      name: "Dave",
-      color: "#ff0",
-      seed: 4,
-      playstyle: "greedyPathfinding",
-      preferredShape: "pentagon",
-    },
-    {
-      name: "Eve",
-      color: "#0ff",
-      seed: 5,
-      playstyle: "wallHuggerPathfinding",
-      preferredShape: "hexagon",
-    },
-    {
-      name: "Frank",
-      color: "#f0f",
-      seed: 6,
-      playstyle: "centerSeekerPathfinding",
-      preferredShape: "heptagon",
-    },
-    {
-      name: "Grace",
-      color: "#fa0",
-      seed: 7,
-      playstyle: "cornerCamperPathfinding",
-      preferredShape: "octagon",
-    },
-    {
-      name: "Heidi",
-      color: "#0af",
-      seed: 8,
-      playstyle: "zigzagPathfinding",
-      preferredShape: "x",
-    },
-  ];
+  const [tournament, setTournament] = useState<TournamentState | null>(null);
+  const [loadingTournament, setLoadingTournament] = useState(true);
 
-  function makeBracket(players: Player[]): Match[] {
-    // Simple 1st vs 2nd, 3rd vs 4th, etc.
-    const matches: Match[] = [];
-    for (let i = 0; i < players.length; i += 2) {
-      matches.push([players[i], players[i + 1]]);
+  // Fetch tournament state from API
+  useEffect(() => {
+    async function fetchTournament() {
+      setLoadingTournament(true);
+      const res = await fetch("/api/tournament");
+      const data = await res.json();
+      setTournament(data);
+      setLoadingTournament(false);
     }
-    return matches;
+    fetchTournament();
+  }, []);
+
+  // Start/reset tournament
+  async function handleStartTournament() {
+    setLoadingTournament(true);
+    const res = await fetch("/api/tournament", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "start" }),
+    });
+    const data = await res.json();
+    setTournament(data);
+    setTournamentStarted(true);
+    setLoadingTournament(false);
   }
-
-  const initialTournament: TournamentState = {
-    players: initialPlayers,
-    bracket: makeBracket(initialPlayers),
-    currentMatch: 0,
-    currentRun: 0,
-    scores: [null, null],
-    winners: [],
-    losers: [],
-    isTournamentComplete: false,
-    round: 1,
-    grandFinal: null,
-    isGrandFinal: false,
-  };
-
-  const [tournament, setTournament] =
-    useState<TournamentState>(initialTournament);
-
-  // Rainbow palette for the snake
-  const rainbowPalette = [
-    "#FF4136", // red
-    "#FF851B", // orange
-    "#FFDC00", // yellow
-    "#2ECC40", // green
-    "#0074D9", // blue
-    "#B10DC9", // purple
-    "#F012BE", // magenta
-    "#39CCCC", // cyan
-    "#3D9970", // teal
-    "#85144b", // maroon
-    "#AAAAAA", // gray
-    "#111111", // black
-  ];
 
   // --- Global Clock and Game Loop ---
   useEffect(() => {
@@ -231,6 +227,7 @@ export function SnakeGame() {
       if (intervalRef.current) clearInterval(intervalRef.current);
       return;
     }
+    if (!tournament) return;
     const interval = setInterval(() => {
       setGameState((prev) => {
         // Only one snake at a time
@@ -239,7 +236,9 @@ export function SnakeGame() {
         const head = snake.body[0] as [number, number];
         // Use the current player's playstyle for the personality function
         const match = tournament.bracket[tournament.currentMatch];
+        if (!match) return prev;
         const player = match[tournament.currentRun];
+        if (!player) return prev;
         const personalityFn =
           SNAKE_PERSONALITIES[player.playstyle] || aggressivePathfinding;
         const applesXY = prev.apples.map(
@@ -285,11 +284,10 @@ export function SnakeGame() {
         let newBodyColors = snake.bodyColors
           ? [...snake.bodyColors]
           : Array(snake.body.length).fill(snake.bodyColor);
-        let newRainbowColorIndex =
-          typeof snake.rainbowColorIndex === "number"
-            ? snake.rainbowColorIndex
-            : (snake.bodyColors ? snake.bodyColors.length : 0) %
-              rainbowPalette.length;
+        // Find palette for this snake
+        const snakePaletteIdx =
+          (snake.seed ? snake.seed - 1 : 0) % SNAKE_PALETTES.length;
+        const snakePalette = SNAKE_PALETTES[snakePaletteIdx];
         if (eatenAppleIdx !== -1) {
           const eatenApple = prev.apples[eatenAppleIdx];
           const shape = eatenApple[4] || "circle";
@@ -305,26 +303,20 @@ export function SnakeGame() {
         if (newGrowth > 0) {
           newBody = [[x, y], ...snake.body];
           newGrowth--;
-          if (newPendingTailColors.length > 0) {
-            newPendingTailColors.shift();
-          }
+          // Repeat the palette pattern for the new head
           newBodyColors = [
-            rainbowPalette[newRainbowColorIndex],
+            snakePalette.body[newBodyColors.length % snakePalette.body.length],
             ...newBodyColors,
           ];
-          newRainbowColorIndex =
-            (newRainbowColorIndex + 1) % rainbowPalette.length;
         } else {
           newBody = [[x, y], ...snake.body].slice(0, -1) as [number, number][];
           newBodyColors = [
-            rainbowPalette[newRainbowColorIndex],
+            snakePalette.body[newBodyColors.length % snakePalette.body.length],
             ...newBodyColors,
           ].slice(0, -1);
-          newRainbowColorIndex =
-            (newRainbowColorIndex + 1) % rainbowPalette.length;
         }
-        // Always maintain the initial apple count (e.g., 95)
-        const APPLE_COUNT = 95;
+        // Always maintain the initial apple count (e.g., 800)
+        const APPLE_COUNT = 800;
         const applesToAdd = APPLE_COUNT - newApples.length;
         if (applesToAdd > 0) {
           const occupied = getOccupiedCells([{ body: newBody }]);
@@ -392,7 +384,6 @@ export function SnakeGame() {
               score: newScore,
               pendingTailColors: newPendingTailColors,
               bodyColors: newBodyColors,
-              rainbowColorIndex: newRainbowColorIndex,
             },
           ],
           apples: newApples,
@@ -400,7 +391,7 @@ export function SnakeGame() {
           allTimeLongest,
         };
       });
-    }, speed); // use speed here
+    }, speed);
     intervalRef.current = interval;
     return () => clearInterval(interval);
   }, [
@@ -410,36 +401,44 @@ export function SnakeGame() {
     intervalRef,
     gridSize,
     speed,
-    tournament.bracket,
-    tournament.currentMatch,
-    tournament.currentRun,
-    rainbowPalette,
+    tournament,
   ]);
 
   // --- Tournament Logic ---
   // 1. On mount or after each match, set up the next run
   useEffect(() => {
-    if (!tournamentStarted || tournament.isTournamentComplete) return;
+    if (!pendingRunSetup) return;
+    if (!tournamentStarted || !tournament || tournament.isTournamentComplete)
+      return;
     // Set up the snake for the current run
     const match = tournament.bracket[tournament.currentMatch];
+    if (!match) return;
     const player = match[tournament.currentRun];
-    setRunScore(0);
+    if (!player) return;
+    console.debug("[Run Setup Effect] Setting up run:", {
+      currentMatch: tournament.currentMatch,
+      currentRun: tournament.currentRun,
+      player: player.name,
+      isTournamentComplete: tournament.isTournamentComplete,
+    });
+    // Pick a palette based on player.seed or index
+    const paletteIdx =
+      (player.seed ? player.seed - 1 : 0) % SNAKE_PALETTES.length;
+    const palette = SNAKE_PALETTES[paletteIdx];
+    const body = Array.from(
+      { length: 5 },
+      (_, j) =>
+        [Math.floor(gridSize / 2) - j, Math.floor(gridSize / 2)] as [
+          number,
+          number
+        ]
+    );
+    const bodyColors = Array.from(
+      { length: body.length },
+      (_, i) => palette.body[i % palette.body.length]
+    );
     setGameState((prev) => {
-      const body = Array.from(
-        { length: 5 },
-        (_, j) =>
-          [Math.floor(gridSize / 2) - j, Math.floor(gridSize / 2)] as [
-            number,
-            number
-          ]
-      );
-      const bodyColor = player.color;
-      const headColor = getHighContrastColor([bodyColor], 120);
-      const bodyColors = Array.from(
-        { length: body.length },
-        (_, i) => rainbowPalette[i % rainbowPalette.length]
-      );
-      const rainbowColorIndex = body.length % rainbowPalette.length;
+      if (!prev) return prev;
       return {
         ...prev,
         snakes: [
@@ -447,13 +446,12 @@ export function SnakeGame() {
             body,
             dir: [1, 0],
             alive: true,
-            bodyColor,
-            headColor,
+            bodyColor: palette.body[0],
+            headColor: palette.head,
             justSpawned: true,
-            name: player.name,
-            seed: player.seed,
+            name: player.name || "AI",
+            seed: player.seed || 0,
             bodyColors,
-            rainbowColorIndex,
           },
         ],
         longestSnakeLength: 5,
@@ -462,16 +460,8 @@ export function SnakeGame() {
     setShowCountdownOverlay(true);
     setCountdownValue(3);
     setRunInProgress(false);
-  }, [
-    tournament.currentMatch,
-    tournament.currentRun,
-    gridSize,
-    tournamentStarted,
-    setGameState,
-    tournament.bracket,
-    tournament.isTournamentComplete,
-    rainbowPalette,
-  ]);
+    setPendingRunSetup(false);
+  }, [pendingRunSetup, tournamentStarted, tournament, gridSize, setGameState]);
 
   // Countdown overlay effect
   useEffect(() => {
@@ -487,94 +477,48 @@ export function SnakeGame() {
     return () => clearTimeout(timer);
   }, [showCountdownOverlay, countdownValue]);
 
-  // --- Snake death and run-over detection ---
+  // Auto-advance logic
+  useEffect(() => {
+    if (!runInProgress) {
+      // If the run just ended, auto-advance after a short delay
+      const alive = gameState.snakes[0]?.alive ?? false;
+      if (!alive) {
+        const score = gameState.snakes[0]?.score || 0;
+        console.debug(
+          "[Auto-Advance Effect] Run ended. Posting score:",
+          score,
+          "Tournament:",
+          tournament
+        );
+        setTimeout(async () => {
+          if (!tournament) return;
+          // POST to API to advance tournament
+          const res = await fetch("/api/tournament", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "advance", score }),
+          });
+          const data = await res.json();
+          console.debug(
+            "[Auto-Advance Effect] Tournament state after API response:",
+            data
+          );
+          setTournament(data);
+        }, 1000); // 1 second delay
+        // Always trigger the next run setup after the API response
+        setPendingRunSetup(true);
+      }
+    }
+  }, [runInProgress, gameState.snakes, tournament]);
+
+  // Watch for snake death and end the run
   useEffect(() => {
     if (!runInProgress) return;
     const alive = gameState.snakes[0]?.alive ?? false;
     if (!alive) {
       setRunInProgress(false);
-      const score = gameState.snakes[0]?.score || 0;
-      setTournament((prev) => {
-        const newScores = [...prev.scores] as [number | null, number | null];
-        newScores[prev.currentRun] = score;
-        return { ...prev, scores: newScores };
-      });
-      if (tournament.currentRun === 0) {
-        setShowRunModal(true); // Show "Next Player"
-      } else {
-        setShowMatchModal(true); // Show "Match Result"
-      }
     }
-  }, [gameState.snakes, runInProgress, tournament.currentRun]);
-
-  function handleNextPlayer() {
-    setTournament((prev) => ({ ...prev, currentRun: 1 }));
-    setShowRunModal(false);
-    setShowCountdownOverlay(true);
-    setCountdownValue(3);
-  }
-
-  function handleNextMatch() {
-    // Determine winner and loser
-    const [scoreA, scoreB] = tournament.scores;
-    const match = tournament.bracket[tournament.currentMatch];
-    const winner = scoreA! >= scoreB! ? match[0] : match[1];
-    const loser = scoreA! < scoreB! ? match[0] : match[1];
-    setTournament((prev) => {
-      let nextMatch = prev.currentMatch + 1;
-      let newBracket = prev.bracket;
-      let newRound = prev.round;
-      let isComplete = false;
-      const newWinners = [...prev.winners, winner];
-      const newLosers = [...prev.losers, loser];
-      let grandFinal: Match | null = prev.grandFinal;
-      let isGrandFinal = prev.isGrandFinal;
-
-      // If first round complete, schedule losers bracket
-      if (nextMatch === prev.bracket.length && prev.round === 1) {
-        // Pair up losers for the losers bracket
-        const losersBracket: Match[] = [];
-        for (let i = 0; i < newLosers.length; i += 2) {
-          losersBracket.push([newLosers[i], newLosers[i + 1]]);
-        }
-        newBracket = losersBracket;
-        newRound = 2;
-        nextMatch = 0;
-        // If no losers bracket (shouldn't happen with 8 players), end tournament
-        if (losersBracket.length === 0) isComplete = true;
-      } else if (nextMatch === prev.bracket.length && prev.round === 2) {
-        // Schedule grand final
-        const winnersChampion = prev.winners[prev.winners.length - 1];
-        const losersChampion = prev.losers[prev.losers.length - 1];
-        grandFinal = [winnersChampion, losersChampion];
-        newBracket = [grandFinal];
-        newRound = 3;
-        nextMatch = 0;
-        isGrandFinal = true;
-      } else if (nextMatch === prev.bracket.length && prev.round === 3) {
-        isComplete = true;
-      }
-
-      return {
-        ...prev,
-        winners: newWinners,
-        losers: newLosers,
-        bracket: newBracket,
-        currentMatch: nextMatch,
-        currentRun: 0,
-        scores: [null, null],
-        isTournamentComplete: isComplete,
-        round: newRound,
-        grandFinal,
-        isGrandFinal,
-      };
-    });
-    setShowMatchModal(false);
-    if (!tournament.isTournamentComplete) {
-      setShowCountdownOverlay(true);
-      setCountdownValue(3);
-    }
-  }
+  }, [gameState.snakes, runInProgress]);
 
   // --- UI for overlays ---
   const renderCountdownOverlay = () =>
@@ -593,94 +537,193 @@ export function SnakeGame() {
           <div className="mb-4">Snake AI Tournament</div>
           <button
             className="px-6 py-3 bg-blue-600 text-white rounded text-xl font-semibold shadow hover:bg-blue-700"
-            onClick={() => setTournamentStarted(true)}
+            onClick={handleStartTournament}
+            disabled={loadingTournament}
           >
-            Start Tournament
+            {loadingTournament ? "Loading..." : "Start Tournament"}
           </button>
         </div>
       </div>
     ) : null;
 
-  const renderTournamentModal = () => {
-    if (showRunModal) {
-      return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-          <div className="bg-white p-6 rounded shadow-lg text-black">
-            <h2 className="text-xl font-bold mb-2">First Run Complete</h2>
-            <div>Score: {tournament.scores[0]}</div>
-            <button
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={handleNextPlayer}
-            >
-              Next Player
-            </button>
-          </div>
-        </div>
-      );
-    }
-    if (showMatchModal) {
-      const [scoreA, scoreB] = tournament.scores;
-      const match = tournament.bracket[tournament.currentMatch];
-      if (!match) return null;
-      const winner = scoreA! >= scoreB! ? match[0] : match[1];
-      return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-          <div className="bg-white p-6 rounded shadow-lg text-black">
-            <h2 className="text-xl font-bold mb-2">Match Result</h2>
-            <div>
-              Score A: {scoreA} | Score B: {scoreB}
-            </div>
-            <div className="mt-2 font-bold text-green-400">
-              Winner: {winner.name}
-            </div>
-            <button
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={handleNextMatch}
-            >
-              Next Match
-            </button>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
-
   // 4. UI for tournament
   function renderBracket() {
+    if (!tournament) return null;
     return (
-      <div className="mb-4 p-2 bg-gray-800 rounded text-white">
-        <div className="font-bold mb-2">
-          {tournament.isGrandFinal
-            ? "Grand Final"
-            : tournament.round === 1
-            ? "Tournament Bracket (Winners Bracket)"
-            : tournament.round === 2
-            ? "Tournament Bracket (Losers Bracket)"
-            : "Tournament Bracket"}
+      <Card className="mb-4 p-4 shadow-md">
+        <div className="flex items-center gap-2 mb-3">
+          <h3 className="font-bold text-lg">
+            {tournament.isGrandFinal
+              ? "Grand Final"
+              : tournament.round === 1
+              ? "Winners Bracket"
+              : "Losers Bracket"}
+          </h3>
         </div>
-        {tournament.bracket.map((match, mIdx) => (
-          <div key={mIdx} className="ml-4">
-            {match.map((player, i) => (
-              <span key={player.seed} style={{ color: player.color }}>
-                {player.name} (Seed {player.seed}){i === 0 ? " vs " : ""}
-              </span>
+        <Separator className="mb-3" />
+        <div className="grid gap-2">
+          {tournament.bracket.map((match, mIdx) => (
+            <div
+              key={mIdx}
+              className={`p-2 rounded-lg ${
+                mIdx === tournament.currentMatch
+                  ? "bg-primary/10 border border-primary/30"
+                  : "bg-muted/30"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: match[0].color }}
+                  />
+                  <span className="font-medium">{match[0].name}</span>
+                  <Badge variant="outline" className="text-xs">
+                    Seed {match[0].seed}
+                  </Badge>
+                </div>
+                <span className="text-muted-foreground">vs</span>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs">
+                    Seed {match[1].seed}
+                  </Badge>
+                  <span className="font-medium">{match[1].name}</span>
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: match[1].color }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    );
+  }
+
+  // 4b. UI for previous match results
+  function renderMatchResults() {
+    if (
+      !tournament ||
+      !tournament.matchHistory ||
+      tournament.matchHistory.length === 0
+    )
+      return null;
+    // Group matchHistory by round
+    const grouped: { [round: number]: MatchHistoryEntry[] } = {};
+    for (const res of tournament.matchHistory as MatchHistoryEntry[]) {
+      if (!grouped[res.round]) grouped[res.round] = [];
+      grouped[res.round].push(res);
+    }
+    return (
+      <Card className="mb-4 p-4 shadow-md">
+        <div className="font-bold text-lg mb-2">Match Results</div>
+        <Separator className="mb-3" />
+        <div className="flex flex-col gap-4">
+          {Object.keys(grouped)
+            .sort((a, b) => Number(a) - Number(b))
+            .map((round) => (
+              <div key={round}>
+                <div className="font-semibold text-blue-700 mb-1">
+                  Round {round}
+                </div>
+                <div className="flex flex-col gap-2">
+                  {grouped[Number(round)].map((res, idx) => (
+                    <div key={idx} className="flex items-center gap-4">
+                      <span
+                        style={{
+                          color: res.a.color,
+                          fontWeight:
+                            res.winner.name === res.a.name ? "bold" : "normal",
+                        }}
+                      >
+                        {res.a.name} ({res.scoreA})
+                      </span>
+                      <span className="mx-2">vs</span>
+                      <span
+                        style={{
+                          color: res.b.color,
+                          fontWeight:
+                            res.winner.name === res.b.name ? "bold" : "normal",
+                        }}
+                      >
+                        {res.b.name} ({res.scoreB})
+                      </span>
+                      <span className="ml-4 text-green-600 font-semibold">
+                        Winner: {res.winner.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
-          </div>
-        ))}
-      </div>
+        </div>
+      </Card>
     );
   }
 
   // 5. UI for current run and match
   function renderCurrentRun() {
-    if (!tournamentStarted || tournament.isTournamentComplete) return null;
-    const match = tournament.bracket[tournament.currentMatch];
+    if (!tournamentStarted || !tournament) return null;
+    const match = tournament?.bracket[tournament.currentMatch];
     if (!match) return null;
     const [playerA, playerB] = match;
     const currentPlayer = match[tournament.currentRun];
+    const currentScore = gameState.snakes[0]?.score || 0;
+    // Find score to beat for second run
+    let scoreToBeat: number | null = null;
+    if (tournament.currentRun === 1) {
+      // Try to find the first run's score in matchHistory
+      const prevMatch = (tournament.matchHistory as MatchHistoryEntry[]).find(
+        (m) =>
+          m.round === tournament.round &&
+          m.matchIndex === tournament.currentMatch
+      );
+      if (prevMatch) {
+        scoreToBeat = prevMatch.scoreA;
+      } else if (typeof tournament.scores[0] === "number") {
+        scoreToBeat = tournament.scores[0];
+      }
+    }
     return (
       <div className="mb-4 p-2 bg-gray-700 rounded text-white">
+        {/* CURRENT PLAYER BANNER */}
+        <div
+          className="flex items-center justify-center mb-4 p-4 rounded-lg shadow-lg"
+          style={{
+            background: currentPlayer.color,
+            color: "#fff",
+            fontWeight: 900,
+            fontSize: 28,
+            letterSpacing: 1,
+            border: `3px solid #fff`,
+            boxShadow: `0 2px 16px 2px ${currentPlayer.color}99`,
+            textShadow: "0 2px 8px #0008",
+            minHeight: 64,
+          }}
+        >
+          <span style={{ fontSize: 36, marginRight: 18 }}>🏁</span>
+          <span>
+            {currentPlayer.name}
+            <span
+              style={{
+                display: "inline-block",
+                background: "#fff3",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 18,
+                borderRadius: 8,
+                padding: "4px 16px",
+                marginLeft: 18,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                boxShadow: `0 1px 8px ${currentPlayer.color}55`,
+              }}
+            >
+              CURRENTLY COMPETING
+            </span>
+          </span>
+        </div>
         <div className="font-bold mb-2">
           Match {tournament.currentMatch + 1} of {tournament.bracket.length}
         </div>
@@ -689,20 +732,20 @@ export function SnakeGame() {
             style={{
               color: playerA.color,
               fontWeight: tournament.currentRun === 0 ? "bold" : "normal",
-              border: `3px solid ${playerA.color}`,
-              borderRadius: 8,
-              padding: "4px 12px",
               background:
+                tournament.currentRun === 0 ? playerA.color + "22" : undefined,
+              border:
                 tournament.currentRun === 0
-                  ? "rgba(255,255,255,0.08)"
-                  : "rgba(255,255,255,0.04)",
+                  ? `2px solid ${playerA.color}`
+                  : undefined,
+              borderRadius: tournament.currentRun === 0 ? 8 : undefined,
+              padding: tournament.currentRun === 0 ? "4px 12px" : undefined,
               boxShadow:
                 tournament.currentRun === 0
                   ? `0 0 8px 2px ${playerA.color}55`
                   : undefined,
-              display: "inline-flex",
-              alignItems: "center",
-              opacity: tournament.currentRun === 0 ? 1 : 0.6,
+              opacity: tournament.currentRun === 0 ? 1 : 0.7,
+              transition: "all 0.2s",
             }}
           >
             {playerA.name} (Seed {playerA.seed})
@@ -725,25 +768,25 @@ export function SnakeGame() {
               </span>
             )}
           </span>
-          <span className="ml-4">vs</span>
+          <span className="mx-2">vs</span>
           <span
             style={{
               color: playerB.color,
               fontWeight: tournament.currentRun === 1 ? "bold" : "normal",
-              border: `3px solid ${playerB.color}`,
-              borderRadius: 8,
-              padding: "4px 12px",
               background:
+                tournament.currentRun === 1 ? playerB.color + "22" : undefined,
+              border:
                 tournament.currentRun === 1
-                  ? "rgba(255,255,255,0.08)"
-                  : "rgba(255,255,255,0.04)",
+                  ? `2px solid ${playerB.color}`
+                  : undefined,
+              borderRadius: tournament.currentRun === 1 ? 8 : undefined,
+              padding: tournament.currentRun === 1 ? "4px 12px" : undefined,
               boxShadow:
                 tournament.currentRun === 1
                   ? `0 0 8px 2px ${playerB.color}55`
                   : undefined,
-              display: "inline-flex",
-              alignItems: "center",
-              opacity: tournament.currentRun === 1 ? 1 : 0.6,
+              opacity: tournament.currentRun === 1 ? 1 : 0.7,
+              transition: "all 0.2s",
             }}
           >
             {playerB.name} (Seed {playerB.seed})
@@ -768,120 +811,74 @@ export function SnakeGame() {
           </span>
         </div>
         <div className="mt-2">
-          Score: <span className="font-mono text-lg">{runScore}</span>
-        </div>
-        <div className="mt-2 text-sm text-blue-200">
-          Playstyle: {currentPlayer.playstyle} <br />
-          Preferred Shape: {currentPlayer.preferredShape}
-        </div>
-        {tournament.currentRun === 1 && tournament.scores[0] !== null && (
-          <div className="mt-2 text-yellow-300 font-semibold">
-            Score to Beat: {tournament.scores[0]}
+          <div className="mt-2 text-lg font-mono text-yellow-300">
+            Score: {currentScore}
           </div>
-        )}
-      </div>
-    );
-  }
-
-  // 6. UI for navigation
-  function renderNextButton() {
-    if (tournament.isTournamentComplete) {
-      const champ = tournament.winners[tournament.winners.length - 1];
-      return (
-        <div className="text-2xl text-yellow-400 font-bold">
-          Champion: {champ.name} (Seed {champ.seed})
-        </div>
-      );
-    }
-    return null;
-  }
-
-  // 7. UI for apple shape legend
-  function renderAppleShapeLegend() {
-    const shapes = Object.keys(APPLE_SHAPE_POINTS);
-    return (
-      <div className="mb-4 p-2 bg-gray-800 rounded text-white">
-        <div className="font-bold mb-2">Apple Shapes & Points</div>
-        <div className="flex flex-wrap gap-4">
-          {shapes.map((shape) => (
-            <div
-              key={shape}
-              className="flex flex-col items-center bg-gray-900 rounded p-2 min-w-[90px]"
-            >
-              <div className="font-mono text-lg">{shape}</div>
-              <div className="text-yellow-300 font-bold">
-                {APPLE_SHAPE_POINTS[shape]} pts
-              </div>
-              <div className="text-xs text-blue-200 mt-1">
-                Preferred by:{" "}
-                {getShapePreferences(shape, initialPlayers).join(", ") ||
-                  "None"}
-              </div>
+          {scoreToBeat !== null && (
+            <div className="mt-2 text-md font-semibold text-yellow-400 bg-gray-800 rounded px-3 py-1 inline-block">
+              Score to Beat: {scoreToBeat}
             </div>
-          ))}
+          )}
         </div>
       </div>
     );
   }
-
-  // Live update apples eaten and length during the run
-  useEffect(() => {
-    const snake = gameState.snakes[0];
-    if (snake && runInProgress) {
-      setRunScore(snake.score || 0);
-    }
-  }, [gameState.snakes, runInProgress]);
-
-  if (!hasMounted) return null;
 
   return (
-    <div className="flex flex-col items-center w-full max-w-4xl mx-auto p-2 md:p-6">
+    <div className="flex flex-col h-screen">
+      {/* Tournament Explanation */}
+      <Card className="max-w-3xl mx-auto mt-6 mb-6 p-6 shadow-md bg-gradient-to-br from-blue-50 to-purple-50">
+        <h1 className="text-3xl font-bold mb-2 text-center">
+          Snake AI Tournament
+        </h1>
+        <p className="text-lg text-gray-700 mb-2 text-center">
+          Welcome to the Snake AI Tournament! Eight unique AI snakes compete in
+          a bracketed tournament. Each snake has its own name, color, playstyle,
+          and preferred apple shape. The tournament is structured as a series of
+          1v1 matches, with each player taking a turn. The winner is the snake
+          with the highest score in each match, and the bracket advances until a
+          champion is crowned.
+        </p>
+        <ul className="list-disc pl-6 text-gray-700 mb-2">
+          <li>
+            <b>Bracket System:</b> 8 players, 4 matches in the first round, then
+            semifinals and finals.
+          </li>
+          <li>
+            <b>Match Flow:</b> Each match consists of two runs (one per player),
+            with a clear `&quot;score to beat`&quot; for the second player.
+          </li>
+          <li>
+            <b>Unique Playstyles:</b> Each AI uses a different pathfinding
+            algorithm and has a preferred apple shape for bonus points.
+          </li>
+          <li>
+            <b>UI Features:</b> Tournament bracket, countdown overlays, and
+            clear winner announcements.
+          </li>
+        </ul>
+        <p className="text-md text-gray-600 text-center mt-2">
+          Can your favorite snake become the champion?
+        </p>
+      </Card>
+      {renderCountdownOverlay()}
       {renderStartTournament()}
-      {tournamentStarted && renderBracket()}
-      {tournamentStarted && renderAppleShapeLegend()}
-      {tournamentStarted && renderCurrentRun()}
-      <div className="relative w-full">
-        {tournamentStarted && (
-          <SnakeBoard
-            snakes={gameState.snakes}
-            apples={gameState.apples}
-            cellSize={cellSize}
-            gridSize={gridSize}
-          />
-        )}
-        {renderCountdownOverlay()}
-        {renderTournamentModal()}
+      {/* Move bracket, current run, and legend above the game board */}
+      <div className="w-full max-w-4xl mx-auto flex flex-col gap-4">
+        {renderBracket()}
+        {renderMatchResults()}
+        {renderCurrentRun()}
       </div>
-      {tournamentStarted && renderNextButton()}
-
-      <style jsx global>{`
-        @keyframes fade-scale {
-          0% {
-            opacity: 0;
-            transform: scale(0.7);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(1.1);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        .animate-fade-scale {
-          animation: fade-scale 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .snake-fade-out {
-          opacity: 0 !important;
-          transition: opacity 0.7s;
-        }
-      `}</style>
+      <div className="flex-grow p-4">
+        <SnakeBoard
+          snakes={gameState.snakes}
+          apples={gameState.apples}
+          cellSize={cellSize}
+          gridSize={gridSize}
+        />
+      </div>
     </div>
   );
 }
 
-// Helper: get apple shape points
-function getApplePoints(shape: string) {
-  return APPLE_SHAPE_POINTS[shape] || 1;
-}
+export default SnakeGame;
