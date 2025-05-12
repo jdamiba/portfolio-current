@@ -22,9 +22,9 @@ export function Header() {
           >
             Experience
           </a>
-          <a href="#blog" className="hover:text-primary transition-colors">
+          <Link href="/blog" className="hover:text-primary transition-colors">
             Blog
-          </a>
+          </Link>
           <a
             href="mailto:jdamiba@gmail.com"
             className="hover:text-primary transition-colors"
