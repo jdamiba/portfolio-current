@@ -8,13 +8,19 @@ type RoomType =
   | "shop"
   | "boss"
   | "event"
-  | "rest";
+  | "rest"
+  | "obstacle"
+  | "speed";
 
 interface MapNode {
   id: string;
   type: RoomType;
   next: string[];
   reward?: string;
+  roomParams?: {
+    obstacles?: [number, number][];
+    speed?: number;
+  };
 }
 
 interface Snake {
@@ -37,6 +43,8 @@ interface RogueliteState {
   snake: Snake;
   apples: [number, number, string, string, string][];
   startTime: number;
+  obstacles: [number, number][];
+  speed: number;
   // ...future: currency, meta, etc
 }
 
@@ -248,6 +256,84 @@ function getNextDirection(
   return snake.dir;
 }
 
+function generateObstacles(
+  gridSize: number,
+  count: number,
+  snakeBody: [number, number][]
+): [number, number][] {
+  const obstacles: [number, number][] = [];
+  const occupied = new Set(snakeBody.map(([x, y]) => `${x},${y}`));
+  while (obstacles.length < count) {
+    const ox = Math.floor(Math.random() * gridSize);
+    const oy = Math.floor(Math.random() * gridSize);
+    if (
+      !occupied.has(`${ox},${oy}`) &&
+      !obstacles.some(([x, y]) => x === ox && y === oy)
+    ) {
+      obstacles.push([ox, oy]);
+    }
+  }
+  return obstacles;
+}
+
+function pickRoomTypeByDepth(depth: number, maxDepth: number): RoomType {
+  if (depth < 2) return "standard";
+  if (depth < maxDepth / 2)
+    return Math.random() < 0.7 ? "standard" : "obstacle";
+  if (depth < maxDepth - 2) {
+    const r = Math.random();
+    if (r < 0.5) return "obstacle";
+    if (r < 0.8) return "speed";
+    return "standard";
+  }
+  return Math.random() < 0.5 ? "obstacle" : "speed";
+}
+
+function generateMap(
+  depth = 8,
+  gridSize = 36,
+  snakeBody: [number, number][] = []
+): MapNode[] {
+  const map: MapNode[] = [];
+  let prevIds: string[] = ["start"];
+  map.push({ id: "start", type: "standard", next: [], roomParams: {} });
+  for (let i = 1; i < depth; i++) {
+    const nBranches = Math.random() < 0.5 ? 2 : 3;
+    const ids = Array.from({ length: nBranches }, (_, j) => `n${i}_${j}`);
+    ids.forEach((id) => {
+      const type = pickRoomTypeByDepth(i, depth);
+      const roomParams: { obstacles?: [number, number][]; speed?: number } = {};
+      if (type === "obstacle") {
+        roomParams.obstacles = generateObstacles(
+          gridSize,
+          10 + i * 2,
+          snakeBody
+        );
+      }
+      if (type === "speed") {
+        roomParams.speed = 70 - i * 5; // Faster as depth increases
+      }
+      map.push({ id, type, next: [], roomParams });
+    });
+    prevIds.forEach((pid) => {
+      const node = map.find((n) => n.id === pid);
+      if (node) node.next = ids;
+    });
+    prevIds = ids;
+  }
+  map.push({
+    id: "boss",
+    type: "obstacle",
+    next: [],
+    roomParams: { obstacles: generateObstacles(gridSize, 30, snakeBody) },
+  });
+  prevIds.forEach((pid) => {
+    const node = map.find((n) => n.id === pid);
+    if (node) node.next = ["boss"];
+  });
+  return map;
+}
+
 // --- API Handler ---
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -270,9 +356,11 @@ export async function POST(req: NextRequest) {
       (_, i) => palette.body[i % palette.body.length]
     );
     const apples = randomApples(20, gridSize, bodyArr); // 20 apples per round
+    const map = generateMap(8, gridSize, bodyArr);
+    const currentNode = map[0];
     gameState = {
-      map: [], // not used in roguelite
-      currentNodeId: "",
+      map,
+      currentNodeId: currentNode.id,
       clearedNodes: [],
       upgrades: [],
       snake: {
@@ -287,8 +375,10 @@ export async function POST(req: NextRequest) {
         seed: 1,
       },
       apples,
-      startTime: Date.now(), // Add start time for timer
-    };
+      startTime: Date.now(),
+      obstacles: currentNode.roomParams?.obstacles || [],
+      speed: currentNode.roomParams?.speed || 100,
+    } as RogueliteState;
     return NextResponse.json(gameState);
   }
 
@@ -339,6 +429,9 @@ export async function POST(req: NextRequest) {
       seed: 1,
     };
     gameState.apples = apples;
+    gameState.obstacles = nextNode?.roomParams?.obstacles || [];
+    gameState.speed = nextNode?.roomParams?.speed || 100;
+    gameState.startTime = Date.now();
     return NextResponse.json(gameState);
   }
 
@@ -351,13 +444,13 @@ export async function POST(req: NextRequest) {
       gridSize
     );
     const snake = { ...gameState.snake };
-    // TIMER: End round after 30 seconds
+    // TIMER: End round after 5 seconds
     const now = Date.now();
-    let timeLeft = 30;
+    let timeLeft = 5;
     if (gameState.startTime) {
       timeLeft = Math.max(
         0,
-        30 - Math.floor((now - gameState.startTime) / 1000)
+        5 - Math.floor((now - gameState.startTime) / 1000)
       );
     }
     console.log("[TICK]", {

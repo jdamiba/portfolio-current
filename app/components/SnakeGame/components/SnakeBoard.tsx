@@ -12,6 +12,7 @@ interface SnakeBoardProps {
   apples: [number, number, string, string, string][];
   cellSize: number;
   gridSize: number;
+  obstacles?: [number, number][];
 }
 
 export const SnakeBoard: React.FC<SnakeBoardProps> = ({
@@ -19,6 +20,7 @@ export const SnakeBoard: React.FC<SnakeBoardProps> = ({
   apples,
   cellSize,
   gridSize,
+  obstacles = [],
 }) => {
   const gridRects = [];
   for (let x = 0; x < gridSize; x++) {
@@ -99,6 +101,19 @@ export const SnakeBoard: React.FC<SnakeBoardProps> = ({
           </filter>
         </defs>
         {gridRects}
+        {/* Render obstacles */}
+        {obstacles.map(([ox, oy]) => (
+          <rect
+            key={`obstacle-${ox}-${oy}`}
+            x={ox * cellSize}
+            y={oy * cellSize}
+            width={cellSize}
+            height={cellSize}
+            fill="#22223b"
+            opacity={0.85}
+            style={{ pointerEvents: "none" }}
+          />
+        ))}
         {/* Render apples as SVG pixel art */}
         {apples.map(([ax, ay, color, , shape], i) => {
           if (ax < 0 || ax >= gridSize || ay < 0 || ay >= gridSize) {
