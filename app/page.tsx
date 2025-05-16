@@ -15,6 +15,42 @@ const spaceGrotesk = Space_Grotesk({
 export default function Home() {
   const projects = [
     {
+      title: "What It's Like To Learn About LangChain",
+      description:
+        "A short film I produced, wrote, and starred in about learning about the LangChain framework.",
+      image: "/images/langchain.png",
+      link: "https://youtu.be/yGZ_L1uLa5g",
+      tags: ["Technical Writing", "Python", "AI"],
+      type: "video" as const,
+      videoId: "yGZ_L1uLa5g",
+    },
+    {
+      title: "Revivle",
+      description:
+        "Create an online store from your closet. Sell your clothes, shoes, and accessories.",
+      image: "/images/revivle.png",
+      link: "https://www.revivle.com/home",
+      tags: ["HTML", "CSS"],
+      type: "image" as const,
+    },
+    {
+      title: "Clarity",
+      description:
+        "The next-generation social calendar app. Connect with your friends and family to plan events.",
+      image: "/images/clarity.png",
+      link: "https://www.clarity.fo",
+      tags: ["Next.js", "PostgreSQL", "Tailwind CSS"],
+      type: "image" as const,
+    },
+    {
+      title: "IO Plasma Torus Simulation",
+      description: "A 3D plasma torus simulation using WebGL and Three.js.",
+      image: "/images/plasma.png",
+      link: "https://io-plasma-torus.vercel.app/",
+      tags: ["Next.js", "Three.js"],
+      type: "image" as const,
+    },
+    {
       title: "PopcornAI",
       description:
         "Get movie recommendations based on your resume. Winner of the 2025 SampleApp.ai Hackathon.",
@@ -29,42 +65,6 @@ export default function Home() {
       image: "/images/snake.png",
       link: "/snake",
       tags: ["Next.js", "React", "Tailwind CSS"],
-      type: "image" as const,
-    },
-    {
-      title: "What It's Like To Learn About LangChain",
-      description:
-        "A short film I produced, wrote, and starred in about learning about the LangChain framework.",
-      image: "/images/langchain.png",
-      link: "https://youtu.be/yGZ_L1uLa5g",
-      tags: ["Technical Writing", "Python", "AI"],
-      type: "video" as const,
-      videoId: "yGZ_L1uLa5g",
-    },
-    {
-      title: "Photogen",
-      description:
-        "A full-stack Next.js application serving an AI image generator, with the ability to create models based on your own likeness.",
-      image: "/images/photogen.png",
-      link: "https://photogen.dev",
-      tags: ["Next.js", "Replicate", "Tailwind CSS"],
-      type: "image" as const,
-    },
-    {
-      title: "Ives",
-      description:
-        "An AI powered project manager for your job search. Get matched with jobs and generate a calendar for your side-projects.",
-      image: "/images/ives.png",
-      link: "https://ives-frontend.vercel.app/",
-      tags: ["Next.js", "Qdrant"],
-      type: "image" as const,
-    },
-    {
-      title: "IO Plasma Torus Simulation",
-      description: "A 3D plasma torus simulation using WebGL and Three.js.",
-      image: "/images/plasma.png",
-      link: "https://io-plasma-torus.vercel.app/",
-      tags: ["Next.js", "Three.js"],
       type: "image" as const,
     },
   ];
@@ -108,13 +108,13 @@ export default function Home() {
 
   const experiences = [
     {
-      title: "Backend Engineer",
-      company: "@BrianTylerCohen YouTube",
+      title: "Freelance Software Engineer (remote)",
+      company: "Various",
       period: "Oct 2024 - Present",
       description: [
-        "Architected and maintained a Node.js web service transforming live stream chats into real-time data visualizations",
-        "Developed a Discord bot for Substack subscribers, enabling seamless authentication and exclusive content access.",
-        "Led backend infrastructure decisions, ensuring scalability and efficiency.",
+        "BrianTylerCohen - created Discord bot to allow Substack subscribers to verify status, increasing participation rate by 200%",
+        "Revivle - Developed landing and clost page components for redesigned website, leading to 200% increase in mobile sign-ups",
+        "Clarity - Developed entire MVP for social calendar web app including user auth",
       ],
     },
     {
@@ -122,9 +122,9 @@ export default function Home() {
       company: "Artie",
       period: "Sept 2022 - Jan 2024",
       description: [
-        "Owned the development and maintenance of PongLegends.com, a full-stack Next.js web app delivering a 3D gaming experience.",
-        "Championed UI/UX enhancements, reducing page load time by 30% and increasing engagement metrics",
-        "Collaborated with backend engineers to optimize API consumption and ensure seamless data synchronization.",
+        "Owned the development and maintenance of PongLegends.com, a full-stack Next.js web app delivering a WebGL-based 3D gaming experience to thousands of monthly active users.",
+        "Developed a React.js-based web application allowing quality assurance testers to access in-development NFTs, reducing the amount of visual bugs shipped by 90%",
+        "Led a project to allowing holders of Artie NFTs to use them as playable characters within the game, leading to a 50% increase in player engagement among players who synced their NFTs",
       ],
     },
     {
@@ -132,18 +132,17 @@ export default function Home() {
       company: "Fluxon",
       period: "Aug 2021 - Aug 2022",
       description: [
-        "Led a team of engineers in feature development for a food delivery startup using Next.js and Google Firebase",
-        "Designed and developed a complete user interface component library (35+ components) meant to consume a healthcare API being developed by a healthcare startup with over $3 billion valuation",
+        "Built the infrastructure for the launch of a food delivery startup using Next.js for the front-end and postgresql for the backend",
+        "Architected and developed a React.js based reference front-end application for a healthcare startup’s API product, making that API available to thousands of front-end JavaScript developers",
       ],
     },
     {
-      title: "Front-End Developer",
+      title: "Dash Core Developer",
       company: "Plotly",
       period: "Aug 2018 - May 2021",
       description: [
-        "Developed and maintained Plotly's React-based Next.js marketing site, improving performance and user engagement.",
-        "Collaborated with the open-source community to enhance Dash (Python, R, and Julia) visualization documentation.",
-        "Worked closely with designers and marketers to launch high-impact feature pages and optimize conversion funnels.",
+        "Led a project to simultaneously update the versions of several dozen Python packages used in Dash Enterprise’s documentation, delivering major security and usability improvements to hundreds of clients",
+        "Responsible for implementing a top-down redesign of plotly.com to focus more on converting enterprise customers, leading to 35% more enterprise customer booked in the next sales quarter",
       ],
     },
   ];
@@ -156,7 +155,7 @@ export default function Home() {
         {/* Hero Section */}
         <Hero
           intro={
-            "As a senior full-stack engineer with 6+ years of experience, I specialize in building modern, scalable web applications with Next.js, React, and Node.js. My work spans data visualization tools, interactive web services, and AI-powered products—most recently for @BrianTylerCohen's YouTube channel (3M+ subscribers). I'm passionate about elegant UI, robust architecture, and delivering seamless user experiences that blend performance with thoughtful design."
+            "As a senior full-stack engineer with 7+ years of experience, I specialize in building modern, scalable web applications with Next.js, React, and Node.js. My work spans data visualization tools, interactive web services, and AI-powered products—most recently for @BrianTylerCohen's YouTube channel (3M+ subscribers). I'm passionate about elegant UI, robust architecture, and delivering seamless user experiences that blend performance with thoughtful design."
           }
         />
 
