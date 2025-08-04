@@ -25,15 +25,6 @@ export default function Home() {
       videoId: "yGZ_L1uLa5g",
     },
     {
-      title: "Revivle",
-      description:
-        "Create an online store from your closet. Sell your clothes, shoes, and accessories.",
-      image: "/images/revivle.png",
-      link: "https://www.revivle.com/home",
-      tags: ["HTML", "CSS"],
-      type: "image" as const,
-    },
-    {
       title: "Clarity",
       description:
         "The next-generation social calendar app. Connect with your friends and family to plan events.",
@@ -51,15 +42,6 @@ export default function Home() {
       type: "image" as const,
     },
     {
-      title: "PopcornAI",
-      description:
-        "Get movie recommendations based on your resume. Winner of the 2025 SampleApp.ai Hackathon.",
-      image: "/images/popcorn.png",
-      link: "https://popcornai.vercel.app",
-      tags: ["Next.js", "Qdrant", "Tailwind CSS"],
-      type: "image" as const,
-    },
-    {
       title: "Snake Game",
       description: "A snake game built with React, Next.js, and TypeScript.",
       image: "/images/snake.png",
@@ -70,13 +52,6 @@ export default function Home() {
   ];
 
   const blogPosts = [
-    {
-      title: "Building a Music Recommendation System Pt. 1",
-      description:
-        "Let's build an application that can visit Pitchfork and get music reviews.",
-      link: "/blog/music-recommendations-pt1",
-      tags: ["Qdrant", "Node.js", "Browserbase"],
-    },
     {
       title: "Upserting Twitch Live Chat Messages Into a Vector Database",
       description:
@@ -89,12 +64,6 @@ export default function Home() {
       description:
         "A tutorial on how to implement vector search in Next.js using Qdrant.",
       link: "/blog/implementing-vector-search-qdrant-nextjs",
-      tags: ["AI", "JavaScript", "Tutorial"],
-    },
-    {
-      title: "Introducing Ives - Your Project Manager for Your Job Search",
-      description: "An AI powered project manager for your job search.",
-      link: "/blog/introducing-ives",
       tags: ["AI", "JavaScript", "Tutorial"],
     },
     {
